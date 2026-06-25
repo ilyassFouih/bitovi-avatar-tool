@@ -12,8 +12,6 @@
       --dark-green: #10312F;
       --off-white:  #EDEDED;
       --white:      #FFFFFF;
-      --pink:       #FFA593;
-      --yellow:     #FFD029;
     }
 
     body {
@@ -29,131 +27,139 @@
     header {
       width: 100%;
       background: var(--dark-green);
-      border-bottom: 2px solid rgba(255,255,255,0.08);
-      padding: 20px 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 18px 40px;
       display: flex;
       align-items: center;
-      gap: 20px;
     }
-
-    header svg { flex-shrink: 0; }
-
     header .tagline {
       font-size: 13px;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.35);
       margin-left: auto;
       letter-spacing: 0.04em;
     }
 
     main {
       width: 100%;
-      max-width: 960px;
-      padding: 48px 24px;
+      max-width: 520px;
+      padding: 52px 24px 40px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 40px;
+      gap: 12px;
     }
 
     h1 {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 700;
       text-align: center;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.4px;
     }
     h1 span { color: var(--red); }
 
     .subtitle {
-      font-size: 15px;
-      color: rgba(255,255,255,0.55);
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
       text-align: center;
-      margin-top: -28px;
+      margin-bottom: 16px;
     }
 
     /* ── Upload zone ── */
     .upload-zone {
       width: 100%;
-      max-width: 480px;
-      border: 2px dashed rgba(255,255,255,0.2);
+      border: 2px dashed rgba(255,255,255,0.18);
       border-radius: 16px;
-      padding: 48px 24px;
+      padding: 44px 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
       text-align: center;
     }
     .upload-zone:hover, .upload-zone.drag-over {
       border-color: var(--red);
-      background: rgba(243, 104, 76, 0.06);
+      background: rgba(243,104,76,0.05);
     }
     .upload-zone input { display: none; }
     .upload-icon {
-      width: 52px; height: 52px;
-      background: rgba(243,104,76,0.15);
+      width: 48px; height: 48px;
+      background: rgba(243,104,76,0.14);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
     }
-    .upload-zone p { font-size: 14px; color: rgba(255,255,255,0.55); }
+    .upload-zone p { font-size: 14px; color: rgba(255,255,255,0.5); }
     .upload-zone strong { color: var(--white); }
-    .upload-zone .hint { font-size: 12px; color: rgba(255,255,255,0.3); }
+    .upload-zone .hint { font-size: 12px; color: rgba(255,255,255,0.28); }
 
-    /* ── Controls ── */
-    .controls {
+    /* ── Editor (hidden until upload) ── */
+    .editor {
       display: none;
       flex-direction: column;
       align-items: center;
-      gap: 32px;
+      gap: 28px;
       width: 100%;
     }
-    .controls.visible { display: flex; }
+    .editor.visible { display: flex; }
 
-    .options-row {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .option-card {
-      background: rgba(255,255,255,0.05);
-      border: 2px solid transparent;
-      border-radius: 12px;
-      padding: 16px 20px;
-      cursor: pointer;
-      text-align: center;
-      transition: border-color 0.2s, background 0.2s;
-      min-width: 140px;
-    }
-    .option-card:hover { background: rgba(255,255,255,0.09); }
-    .option-card.active {
-      border-color: var(--red);
-      background: rgba(243,104,76,0.1);
-    }
-    .option-card .label { font-size: 13px; font-weight: 600; margin-top: 6px; }
-    .option-card .desc  { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 3px; }
-
-    .option-icon {
-      font-size: 22px;
-      line-height: 1;
-    }
-
-    /* ── Preview ── */
-    .preview-section {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
+    /* ── Canvas wrapper ── */
+    .canvas-wrap {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      flex-shrink: 0;
     }
 
     canvas#preview {
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-      max-width: 360px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      display: block;
+      /* subtle outer shadow so it floats */
+      filter: drop-shadow(0 16px 40px rgba(0,0,0,0.55));
+    }
+
+    /* ── Zoom control ── */
+    .zoom-row {
       width: 100%;
-      height: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .zoom-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+      white-space: nowrap;
+    }
+    .zoom-icon { font-size: 18px; line-height: 1; color: rgba(255,255,255,0.4); user-select:none; }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.12);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      cursor: pointer;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 20px; height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: var(--red);
+      cursor: pointer;
     }
 
     /* ── Buttons ── */
@@ -168,20 +174,16 @@
       cursor: pointer;
       border: none;
       transition: opacity 0.15s, transform 0.1s;
-      text-decoration: none;
     }
     .btn:active { transform: scale(0.97); }
-    .btn-primary {
-      background: var(--red);
-      color: var(--white);
-    }
+    .btn-primary { background: var(--red); color: var(--white); }
     .btn-primary:hover { opacity: 0.88; }
     .btn-secondary {
-      background: rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.07);
       color: var(--white);
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.12);
     }
-    .btn-secondary:hover { background: rgba(255,255,255,0.13); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.12); }
 
     .action-row {
       display: flex;
@@ -190,21 +192,11 @@
       justify-content: center;
     }
 
-    /* ── Label divider ── */
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: rgba(255,255,255,0.3);
-      text-align: center;
-    }
-
     footer {
       margin-top: auto;
       padding: 24px;
       font-size: 12px;
-      color: rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.18);
       text-align: center;
     }
   </style>
@@ -212,145 +204,100 @@
 <body>
 
 <header>
-  <!-- Bitovi logo (white version, scaled) -->
-  <svg width="90" height="28" viewBox="0 0 109 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg width="88" height="27" viewBox="0 0 109 34" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path fill-rule="evenodd" clip-rule="evenodd" d="M26.2745 0C23.9148 0 21.9928 1.99387 21.9928 4.42787C21.9928 6.86212 23.9148 8.84676 26.2745 8.84676C28.6329 8.84676 30.5549 6.86212 30.5549 4.42787C30.5549 1.99387 28.6329 0 26.2745 0ZM104.711 0C102.351 0 100.429 1.99387 100.429 4.42787C100.429 6.86109 102.352 8.84676 104.711 8.84676C107.069 8.84676 109 6.8634 109 4.42787C109 1.99285 107.07 0 104.711 0ZM26.2745 1.15513C28.0319 1.15513 29.4464 2.61435 29.4464 4.42787C29.4464 6.24138 28.0319 7.70009 26.2745 7.70009C24.5166 7.70009 23.102 6.24138 23.102 4.42787C23.102 2.61435 24.5166 1.15513 26.2745 1.15513ZM0 10.0178V33.325H12.5214C13.9415 33.325 15.1934 33.1759 16.2691 32.8662C17.3666 32.5327 18.2817 32.0726 19.0135 31.4956C19.7449 30.9174 20.2901 30.2439 20.656 29.4664C21.0214 28.6669 21.2064 27.802 21.2064 26.8692V26.797C21.2064 25.1992 20.7739 23.9659 19.9127 23.101C19.0523 22.2351 17.8902 21.5791 16.4267 21.1351C17.6539 20.6911 18.6315 20.0499 19.3623 19.2055C20.0944 18.3396 20.4636 17.2052 20.4636 15.807V15.7442C20.4636 14.9439 20.3372 14.2422 20.0788 13.6425C19.8211 13.0425 19.483 12.532 19.0739 12.1098C18.4068 11.4214 17.5555 10.9039 16.5238 10.5499C15.5122 10.194 14.2227 10.0178 12.6523 10.0178H0ZM22.4995 33.325H30.0484V10.0173H22.4995V33.325ZM31.4814 10.0178V16.6083H38.1311V33.325H45.6892V16.6083H52.3285V10.0178H31.4814ZM74.1992 10.0178L83.366 33.4972H90.5907L99.7563 10.0178H91.4382L87.0432 23.101L82.6568 10.0178H74.1992ZM100.937 33.325H108.486V10.0173H100.937V33.325ZM7.3585 15.9151H10.6245C12.2384 15.9151 13.0455 16.4446 13.0455 17.5104V17.5734C13.0455 18.6388 12.2432 19.1781 10.6511 19.1781V19.1702H7.3585V15.9161V15.9151ZM64.2745 9.51284C62.531 9.51284 60.9119 9.83409 59.4062 10.4774C57.9008 11.0989 56.5846 11.9737 55.4657 13.0822C54.3684 14.171 53.4988 15.4555 52.8541 16.9427C52.2292 18.4073 51.9184 19.9879 51.9184 21.6767V21.7384C51.9184 23.4259 52.2292 25.0134 52.8541 26.5001C53.4777 27.9649 54.3337 29.2438 55.4307 30.3326C56.5501 31.4198 57.8517 32.2708 59.337 32.8926C60.8431 33.5144 62.4695 33.8315 64.2122 33.8315C65.9552 33.8315 67.5815 33.5144 69.0889 32.8926C70.5943 32.2491 71.8967 31.3847 72.9932 30.2957C74.1121 29.1851 74.9825 27.9019 75.6061 26.4358C76.2518 24.9491 76.5753 23.3629 76.5753 21.6767V21.6044C76.5753 19.9169 76.2647 18.3442 75.6408 16.8807C75.018 15.3917 74.1389 14.0988 73.02 13.0113C71.9222 11.9243 70.6296 11.072 69.1234 10.45C67.6381 9.82923 66.0165 9.51284 64.2745 9.51284ZM64.2122 16.4101C64.9438 16.4101 65.5972 16.5545 66.1786 16.844C66.7595 17.1317 67.2553 17.5183 67.6639 18.0058C68.0728 18.4946 68.3829 19.0669 68.5991 19.7105C68.8352 20.3322 68.9571 20.9883 68.9571 21.6767V21.7384C68.9571 22.4283 68.8486 23.0828 68.6341 23.7059C68.4174 24.3264 68.1068 24.8836 67.6987 25.3726C67.2891 25.8394 66.7945 26.2108 66.2131 26.5001C65.6317 26.789 64.9927 26.9323 64.2825 26.9323C63.5509 26.9323 62.889 26.789 62.3081 26.5001C61.7269 26.2108 61.2312 25.8255 60.8225 25.337C60.4142 24.8482 60.0971 24.2895 59.8615 23.6677C59.6461 23.0244 59.5381 22.3635 59.5381 21.6767V21.6044C59.5381 20.9161 59.6461 20.2597 59.8615 19.6387C60.076 19.0165 60.3873 18.4728 60.7965 18.0058C61.2048 17.5183 61.7011 17.1317 62.2825 16.844C62.8622 16.5545 63.5024 16.4101 64.2122 16.4101ZM7.3585 23.9659H11.1665C11.9855 23.9659 12.6016 24.1242 13.0108 24.4352C13.4201 24.746 13.6222 25.1592 13.6222 25.6708V25.7325C13.6222 26.2441 13.4067 26.6584 12.975 26.9691C12.5664 27.2801 11.9592 27.4372 11.1409 27.4372H7.3585V23.9659Z" fill="white"/>
   </svg>
   <span class="tagline">Avatar Generator</span>
 </header>
 
 <main>
-  <h1>Branded <span>Profile Pictures</span></h1>
-  <p class="subtitle">Upload your photo — we'll add the Bitovi logo so your whole team looks consistent.</p>
+  <h1>Your <span>Bitovi</span> Avatar</h1>
+  <p class="subtitle">Upload your photo, zoom to fit, download.</p>
 
-  <!-- Upload zone -->
   <label class="upload-zone" id="dropzone">
     <input type="file" id="fileInput" accept="image/*" />
     <div class="upload-icon">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
         <path d="M12 16V8M12 8L9 11M12 8L15 11" stroke="#F3684C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M3 16.5V18.75C3 19.9926 4.00736 21 5.25 21H18.75C19.9926 21 21 19.9926 21 18.75V16.5" stroke="#F3684C" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </div>
     <p><strong>Click to upload</strong> or drag & drop</p>
-    <p class="hint">PNG, JPG, WEBP · Max 20 MB</p>
+    <p class="hint">PNG · JPG · WEBP · Max 20 MB</p>
   </label>
 
-  <!-- Controls (shown after upload) -->
-  <div class="controls" id="controls">
-
-    <p class="section-label">Logo placement</p>
-    <div class="options-row" id="placementOptions">
-      <div class="option-card active" data-placement="bottom-right">
-        <div class="option-icon">↘</div>
-        <div class="label">Bottom Right</div>
-        <div class="desc">Standard badge</div>
-      </div>
-      <div class="option-card" data-placement="bottom-left">
-        <div class="option-icon">↙</div>
-        <div class="label">Bottom Left</div>
-        <div class="desc">Alt placement</div>
-      </div>
-      <div class="option-card" data-placement="bottom-bar">
-        <div class="option-icon">▬</div>
-        <div class="label">Bottom Bar</div>
-        <div class="desc">Full-width strip</div>
-      </div>
-    </div>
-
-    <p class="section-label">Shape</p>
-    <div class="options-row" id="shapeOptions">
-      <div class="option-card active" data-shape="circle">
-        <div class="option-icon">◯</div>
-        <div class="label">Circle</div>
-        <div class="desc">LinkedIn / Slack</div>
-      </div>
-      <div class="option-card" data-shape="square">
-        <div class="option-icon">□</div>
-        <div class="label">Square</div>
-        <div class="desc">Twitter / Teams</div>
-      </div>
-    </div>
-
-    <div class="preview-section">
+  <div class="editor" id="editor">
+    <div class="canvas-wrap">
       <canvas id="preview" width="600" height="600"></canvas>
     </div>
 
+    <div class="zoom-row">
+      <span class="zoom-icon">⊖</span>
+      <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1" />
+      <span class="zoom-icon">⊕</span>
+    </div>
+
     <div class="action-row">
-      <button class="btn btn-secondary" id="resetBtn">Upload new photo</button>
+      <button class="btn btn-secondary" id="resetBtn">Change photo</button>
       <button class="btn btn-primary" id="downloadBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
           <path d="M12 16L7 11M12 16L17 11M12 16V4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M3 18H21" stroke="white" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        Download Avatar
+        Download
       </button>
     </div>
   </div>
 </main>
 
-<footer>© Bitovi · Internal tool · Brand guidelines v1.1</footer>
+<footer>Bitovi · Internal tool · Brand guidelines v1.1</footer>
 
 <script>
+// ── Constants ─────────────────────────────────────────────────────────────
+const SIZE       = 600;          // output canvas px
+const RING_W     = 22;           // ring stroke width (px at SIZE scale)
+const LOGO_W_SRC = 109;
+const LOGO_H_SRC = 34;
+
+const RED        = '#F3684C';
+const GREEN      = '#10312F';
+const WHITE      = '#FFFFFF';
+
+// Bitovi logo path (viewBox 0 0 109 34)
+const LOGO_PATH_DATA =
+  'M26.2745 0C23.9148 0 21.9928 1.99387 21.9928 4.42787C21.9928 6.86212 23.9148 8.84676 26.2745 8.84676C28.6329 8.84676 30.5549 6.86212 30.5549 4.42787C30.5549 1.99387 28.6329 0 26.2745 0ZM104.711 0C102.351 0 100.429 1.99387 100.429 4.42787C100.429 6.86109 102.352 8.84676 104.711 8.84676C107.069 8.84676 109 6.8634 109 4.42787C109 1.99285 107.07 0 104.711 0ZM26.2745 1.15513C28.0319 1.15513 29.4464 2.61435 29.4464 4.42787C29.4464 6.24138 28.0319 7.70009 26.2745 7.70009C24.5166 7.70009 23.102 6.24138 23.102 4.42787C23.102 2.61435 24.5166 1.15513 26.2745 1.15513ZM0 10.0178V33.325H12.5214C13.9415 33.325 15.1934 33.1759 16.2691 32.8662C17.3666 32.5327 18.2817 32.0726 19.0135 31.4956C19.7449 30.9174 20.2901 30.2439 20.656 29.4664C21.0214 28.6669 21.2064 27.802 21.2064 26.8692V26.797C21.2064 25.1992 20.7739 23.9659 19.9127 23.101C19.0523 22.2351 17.8902 21.5791 16.4267 21.1351C17.6539 20.6911 18.6315 20.0499 19.3623 19.2055C20.0944 18.3396 20.4636 17.2052 20.4636 15.807V15.7442C20.4636 14.9439 20.3372 14.2422 20.0788 13.6425C19.8211 13.0425 19.483 12.532 19.0739 12.1098C18.4068 11.4214 17.5555 10.9039 16.5238 10.5499C15.5122 10.194 14.2227 10.0178 12.6523 10.0178H0ZM22.4995 33.325H30.0484V10.0173H22.4995V33.325ZM31.4814 10.0178V16.6083H38.1311V33.325H45.6892V16.6083H52.3285V10.0178H31.4814ZM74.1992 10.0178L83.366 33.4972H90.5907L99.7563 10.0178H91.4382L87.0432 23.101L82.6568 10.0178H74.1992ZM100.937 33.325H108.486V10.0173H100.937V33.325ZM7.3585 15.9151H10.6245C12.2384 15.9151 13.0455 16.4446 13.0455 17.5104V17.5734C13.0455 18.6388 12.2432 19.1781 10.6511 19.1781V19.1702H7.3585V15.9161V15.9151ZM64.2745 9.51284C62.531 9.51284 60.9119 9.83409 59.4062 10.4774C57.9008 11.0989 56.5846 11.9737 55.4657 13.0822C54.3684 14.171 53.4988 15.4555 52.8541 16.9427C52.2292 18.4073 51.9184 19.9879 51.9184 21.6767V21.7384C51.9184 23.4259 52.2292 25.0134 52.8541 26.5001C53.4777 27.9649 54.3337 29.2438 55.4307 30.3326C56.5501 31.4198 57.8517 32.2708 59.337 32.8926C60.8431 33.5144 62.4695 33.8315 64.2122 33.8315C65.9552 33.8315 67.5815 33.5144 69.0889 32.8926C70.5943 32.2491 71.8967 31.3847 72.9932 30.2957C74.1121 29.1851 74.9825 27.9019 75.6061 26.4358C76.2518 24.9491 76.5753 23.3629 76.5753 21.6767V21.6044C76.5753 19.9169 76.2647 18.3442 75.6408 16.8807C75.018 15.3917 74.1389 14.0988 73.02 13.0113C71.9222 11.9243 70.6296 11.072 69.1234 10.45C67.6381 9.82923 66.0165 9.51284 64.2745 9.51284ZM64.2122 16.4101C64.9438 16.4101 65.5972 16.5545 66.1786 16.844C66.7595 17.1317 67.2553 17.5183 67.6639 18.0058C68.0728 18.4946 68.3829 19.0669 68.5991 19.7105C68.8352 20.3322 68.9571 20.9883 68.9571 21.6767V21.7384C68.9571 22.4283 68.8486 23.0828 68.6341 23.7059C68.4174 24.3264 68.1068 24.8836 67.6987 25.3726C67.2891 25.8394 66.7945 26.2108 66.2131 26.5001C65.6317 26.789 64.9927 26.9323 64.2825 26.9323C63.5509 26.9323 62.889 26.789 62.3081 26.5001C61.7269 26.2108 61.2312 25.8255 60.8225 25.337C60.4142 24.8482 60.0971 24.2895 59.8615 23.6677C59.6461 23.0244 59.5381 22.3635 59.5381 21.6767V21.6044C59.5381 20.9161 59.6461 20.2597 59.8615 19.6387C60.076 19.0165 60.3873 18.4728 60.7965 18.0058C61.2048 17.5183 61.7011 17.1317 62.2825 16.844C62.8622 16.5545 63.5024 16.4101 64.2122 16.4101ZM7.3585 23.9659H11.1665C11.9855 23.9659 12.6016 24.1242 13.0108 24.4352C13.4201 24.746 13.6222 25.1592 13.6222 25.6708V25.7325C13.6222 26.2441 13.4067 26.6584 12.975 26.9691C12.5664 27.2801 11.9592 27.4372 11.1409 27.4372H7.3585V23.9659Z';
+
+const LOGO_PATH = new Path2D(LOGO_PATH_DATA);
+
 // ── State ──────────────────────────────────────────────────────────────────
 let userImage = null;
-let placement = 'bottom-right';
-let shape     = 'circle';
+let zoom = 1; // 1.0 = fit, up to 3.0
 
-const SIZE        = 600;
-const LOGO_W      = 109;
-const LOGO_H      = 34;
-const BRAND_RED   = '#F3684C';
-const BRAND_GREEN = '#10312F';
-
-// ── Logo SVG path (red version, will be drawn white on dark bg) ───────────
-const LOGO_PATH = new Path2D(
-  'M26.2745 0C23.9148 0 21.9928 1.99387 21.9928 4.42787C21.9928 6.86212 23.9148 8.84676 26.2745 8.84676C28.6329 8.84676 30.5549 6.86212 30.5549 4.42787C30.5549 1.99387 28.6329 0 26.2745 0ZM104.711 0C102.351 0 100.429 1.99387 100.429 4.42787C100.429 6.86109 102.352 8.84676 104.711 8.84676C107.069 8.84676 109 6.8634 109 4.42787C109 1.99285 107.07 0 104.711 0ZM26.2745 1.15513C28.0319 1.15513 29.4464 2.61435 29.4464 4.42787C29.4464 6.24138 28.0319 7.70009 26.2745 7.70009C24.5166 7.70009 23.102 6.24138 23.102 4.42787C23.102 2.61435 24.5166 1.15513 26.2745 1.15513ZM0 10.0178V33.325H12.5214C13.9415 33.325 15.1934 33.1759 16.2691 32.8662C17.3666 32.5327 18.2817 32.0726 19.0135 31.4956C19.7449 30.9174 20.2901 30.2439 20.656 29.4664C21.0214 28.6669 21.2064 27.802 21.2064 26.8692V26.797C21.2064 25.1992 20.7739 23.9659 19.9127 23.101C19.0523 22.2351 17.8902 21.5791 16.4267 21.1351C17.6539 20.6911 18.6315 20.0499 19.3623 19.2055C20.0944 18.3396 20.4636 17.2052 20.4636 15.807V15.7442C20.4636 14.9439 20.3372 14.2422 20.0788 13.6425C19.8211 13.0425 19.483 12.532 19.0739 12.1098C18.4068 11.4214 17.5555 10.9039 16.5238 10.5499C15.5122 10.194 14.2227 10.0178 12.6523 10.0178H0ZM22.4995 33.325H30.0484V10.0173H22.4995V33.325ZM31.4814 10.0178V16.6083H38.1311V33.325H45.6892V16.6083H52.3285V10.0178H31.4814ZM74.1992 10.0178L83.366 33.4972H90.5907L99.7563 10.0178H91.4382L87.0432 23.101L82.6568 10.0178H74.1992ZM100.937 33.325H108.486V10.0173H100.937V33.325ZM7.3585 15.9151H10.6245C12.2384 15.9151 13.0455 16.4446 13.0455 17.5104V17.5734C13.0455 18.6388 12.2432 19.1781 10.6511 19.1781V19.1702H7.3585V15.9161V15.9151ZM64.2745 9.51284C62.531 9.51284 60.9119 9.83409 59.4062 10.4774C57.9008 11.0989 56.5846 11.9737 55.4657 13.0822C54.3684 14.171 53.4988 15.4555 52.8541 16.9427C52.2292 18.4073 51.9184 19.9879 51.9184 21.6767V21.7384C51.9184 23.4259 52.2292 25.0134 52.8541 26.5001C53.4777 27.9649 54.3337 29.2438 55.4307 30.3326C56.5501 31.4198 57.8517 32.2708 59.337 32.8926C60.8431 33.5144 62.4695 33.8315 64.2122 33.8315C65.9552 33.8315 67.5815 33.5144 69.0889 32.8926C70.5943 32.2491 71.8967 31.3847 72.9932 30.2957C74.1121 29.1851 74.9825 27.9019 75.6061 26.4358C76.2518 24.9491 76.5753 23.3629 76.5753 21.6767V21.6044C76.5753 19.9169 76.2647 18.3442 75.6408 16.8807C75.018 15.3917 74.1389 14.0988 73.02 13.0113C71.9222 11.9243 70.6296 11.072 69.1234 10.45C67.6381 9.82923 66.0165 9.51284 64.2745 9.51284ZM64.2122 16.4101C64.9438 16.4101 65.5972 16.5545 66.1786 16.844C66.7595 17.1317 67.2553 17.5183 67.6639 18.0058C68.0728 18.4946 68.3829 19.0669 68.5991 19.7105C68.8352 20.3322 68.9571 20.9883 68.9571 21.6767V21.7384C68.9571 22.4283 68.8486 23.0828 68.6341 23.7059C68.4174 24.3264 68.1068 24.8836 67.6987 25.3726C67.2891 25.8394 66.7945 26.2108 66.2131 26.5001C65.6317 26.789 64.9927 26.9323 64.2825 26.9323C63.5509 26.9323 62.889 26.789 62.3081 26.5001C61.7269 26.2108 61.2312 25.8255 60.8225 25.337C60.4142 24.8482 60.0971 24.2895 59.8615 23.6677C59.6461 23.0244 59.5381 22.3635 59.5381 21.6767V21.6044C59.5381 20.9161 59.6461 20.2597 59.8615 19.6387C60.076 19.0165 60.3873 18.4728 60.7965 18.0058C61.2048 17.5183 61.7011 17.1317 62.2825 16.844C62.8622 16.5545 63.5024 16.4101 64.2122 16.4101ZM7.3585 23.9659H11.1665C11.9855 23.9659 12.6016 24.1242 13.0108 24.4352C13.4201 24.746 13.6222 25.1592 13.6222 25.6708V25.7325C13.6222 26.2441 13.4067 26.6584 12.975 26.9691C12.5664 27.2801 11.9592 27.4372 11.1409 27.4372H7.3585V23.9659Z'
-);
-
-// ── DOM refs ──────────────────────────────────────────────────────────────
+// ── DOM ────────────────────────────────────────────────────────────────────
 const dropzone    = document.getElementById('dropzone');
 const fileInput   = document.getElementById('fileInput');
-const controls    = document.getElementById('controls');
+const editor      = document.getElementById('editor');
 const canvas      = document.getElementById('preview');
 const ctx         = canvas.getContext('2d');
+const zoomSlider  = document.getElementById('zoomSlider');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetBtn    = document.getElementById('resetBtn');
 
-// ── Option toggles ────────────────────────────────────────────────────────
-document.getElementById('placementOptions').addEventListener('click', e => {
-  const card = e.target.closest('[data-placement]');
-  if (!card) return;
-  placement = card.dataset.placement;
-  document.querySelectorAll('[data-placement]').forEach(c => c.classList.remove('active'));
-  card.classList.add('active');
-  render();
-});
-
-document.getElementById('shapeOptions').addEventListener('click', e => {
-  const card = e.target.closest('[data-shape]');
-  if (!card) return;
-  shape = card.dataset.shape;
-  document.querySelectorAll('[data-shape]').forEach(c => c.classList.remove('active'));
-  card.classList.add('active');
-  render();
-});
-
-// ── File handling ─────────────────────────────────────────────────────────
+// ── File handling ──────────────────────────────────────────────────────────
 fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
-
 dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
-dropzone.addEventListener('dragleave', ()  => dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
 dropzone.addEventListener('drop', e => {
   e.preventDefault();
   dropzone.classList.remove('drag-over');
   loadFile(e.dataTransfer.files[0]);
 });
-
 resetBtn.addEventListener('click', () => {
   userImage = null;
   fileInput.value = '';
-  controls.classList.remove('visible');
+  zoomSlider.value = 100;
+  zoom = 1;
+  editor.classList.remove('visible');
   dropzone.style.display = '';
 });
 
@@ -361,8 +308,10 @@ function loadFile(file) {
     const img = new Image();
     img.onload = () => {
       userImage = img;
+      zoom = 1;
+      zoomSlider.value = 100;
       dropzone.style.display = 'none';
-      controls.classList.add('visible');
+      editor.classList.add('visible');
       render();
     };
     img.src = ev.target.result;
@@ -370,128 +319,115 @@ function loadFile(file) {
   reader.readAsDataURL(file);
 }
 
-// ── Render ────────────────────────────────────────────────────────────────
+// ── Zoom ───────────────────────────────────────────────────────────────────
+zoomSlider.addEventListener('input', () => {
+  zoom = zoomSlider.value / 100;
+  render();
+});
+
+// ── Render ─────────────────────────────────────────────────────────────────
 function render() {
   if (!userImage) return;
   ctx.clearRect(0, 0, SIZE, SIZE);
 
-  // 1. Clip to shape
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  const r  = SIZE / 2;
+
+  // ── 1. Clip to circle (inset by half ring width so photo sits inside ring)
+  const photoR = r - RING_W;
   ctx.save();
-  if (shape === 'circle') {
-    ctx.beginPath();
-    ctx.arc(SIZE / 2, SIZE / 2, SIZE / 2, 0, Math.PI * 2);
-    ctx.clip();
-  }
+  ctx.beginPath();
+  ctx.arc(cx, cy, photoR, 0, Math.PI * 2);
+  ctx.clip();
 
-  // 2. Draw user photo (cover-fit)
-  const { sx, sy, sw, sh } = coverFit(userImage, SIZE, SIZE);
-  ctx.drawImage(userImage, sx, sy, sw, sh, 0, 0, SIZE, SIZE);
-
-  // 3. Logo overlay
-  if (placement === 'bottom-bar') {
-    drawBottomBar();
+  // ── 2. Draw user photo (cover + zoom)
+  const scale = zoom;
+  const imgAspect = userImage.naturalWidth / userImage.naturalHeight;
+  let drawW, drawH;
+  if (imgAspect >= 1) {
+    drawH = photoR * 2 * scale;
+    drawW = drawH * imgAspect;
   } else {
-    drawBadge(placement);
+    drawW = photoR * 2 * scale;
+    drawH = drawW / imgAspect;
   }
-
+  const dx = cx - drawW / 2;
+  const dy = cy - drawH / 2;
+  ctx.drawImage(userImage, dx, dy, drawW, drawH);
   ctx.restore();
-}
 
-function coverFit(img, targetW, targetH) {
-  const imgAspect    = img.naturalWidth / img.naturalHeight;
-  const targetAspect = targetW / targetH;
-  let sw, sh, sx, sy;
-  if (imgAspect > targetAspect) {
-    sh = img.naturalHeight;
-    sw = sh * targetAspect;
-    sx = (img.naturalWidth - sw) / 2;
-    sy = 0;
-  } else {
-    sw = img.naturalWidth;
-    sh = sw / targetAspect;
-    sx = 0;
-    sy = (img.naturalHeight - sh) / 2;
-  }
-  return { sx, sy, sw, sh };
-}
-
-function drawBottomBar() {
-  const BAR_H   = 90;
-  const BAR_Y   = SIZE - BAR_H;
-
-  // Dark green bar
-  ctx.fillStyle = BRAND_GREEN;
-  ctx.fillRect(0, BAR_Y, SIZE, BAR_H);
-
-  // Red accent line at top of bar
-  ctx.fillStyle = BRAND_RED;
-  ctx.fillRect(0, BAR_Y, SIZE, 3);
-
-  drawLogoInRect(16, BAR_Y + (BAR_H - 40) / 2, 145, 45, 'white');
-}
-
-function drawBadge(pos) {
-  const PAD      = 18;
-  const BADGE_W  = 150;
-  const BADGE_H  = 52;
-  const RADIUS   = 10;
-
-  let bx, by;
-  if (pos === 'bottom-right') {
-    bx = SIZE - BADGE_W - PAD;
-    by = SIZE - BADGE_H - PAD;
-  } else {
-    bx = PAD;
-    by = SIZE - BADGE_H - PAD;
-  }
-
-  // Badge background
+  // ── 3. Branded ring
+  // Outer ring: dark green fill ring
   ctx.beginPath();
-  roundRect(ctx, bx, by, BADGE_W, BADGE_H, RADIUS);
-  ctx.fillStyle = BRAND_GREEN;
+  ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);       // outer edge
+  ctx.arc(cx, cy, photoR, 0, Math.PI * 2, true); // inner edge (hole)
+  ctx.fillStyle = GREEN;
+  ctx.fill('evenodd');
+
+  // Red arc — symmetric around the bottom (π/2), spanning ±75°
+  const arcStart = Math.PI / 2 - Math.PI * 75 / 180;
+  const arcEnd   = Math.PI / 2 + Math.PI * 75 / 180;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 1, arcStart, arcEnd);
+  ctx.arc(cx, cy, photoR, arcEnd, arcStart, true);
+  ctx.closePath();
+  ctx.fillStyle = RED;
   ctx.fill();
 
-  // Red left accent stripe
+  // ── 4. Logo pill on the bottom arc
+  // Position: bottom-center of the ring arc
+  const PILL_W  = 140;
+  const PILL_H  = 40;
+  const PILL_R  = PILL_H / 2;
+  const pillX   = cx - PILL_W / 2;
+  const pillY   = cy + photoR + (RING_W - PILL_H) / 2;  // vertically centered in ring
+
+  // Pill background (same red, slightly darker outline)
   ctx.beginPath();
-  roundRect(ctx, bx, by, 4, BADGE_H, [RADIUS, 0, 0, RADIUS]);
-  ctx.fillStyle = BRAND_RED;
+  ctx.roundRect(pillX, pillY, PILL_W, PILL_H, PILL_R);
+  ctx.fillStyle = RED;
   ctx.fill();
 
-  drawLogoInRect(bx + 14, by + (BADGE_H - 34) / 2, 109, 34, 'white');
-}
+  // Logo inside pill — scale to fit with padding
+  const logoPadX = 14;
+  const logoPadY = (PILL_H - 34 * (PILL_H - 10) / 34) / 2;
+  const logoTargetH = PILL_H - 14;
+  const logoTargetW = LOGO_W_SRC * (logoTargetH / LOGO_H_SRC);
+  const logoX = pillX + (PILL_W - logoTargetW) / 2;
+  const logoY = pillY + (PILL_H - logoTargetH) / 2;
 
-function drawLogoInRect(x, y, w, h, color) {
   ctx.save();
-  ctx.translate(x, y);
-  const scaleX = w / LOGO_W;
-  const scaleY = h / LOGO_H;
-  ctx.scale(scaleX, scaleY);
-  ctx.fillStyle = color;
+  ctx.translate(logoX, logoY);
+  ctx.scale(logoTargetW / LOGO_W_SRC, logoTargetH / LOGO_H_SRC);
+  ctx.fillStyle = WHITE;
   ctx.fill(LOGO_PATH);
   ctx.restore();
 }
 
-// ── roundRect polyfill ────────────────────────────────────────────────────
-function roundRect(ctx, x, y, w, h, r) {
-  if (typeof r === 'number') r = [r, r, r, r];
-  const [tl, tr, br, bl] = r;
-  ctx.moveTo(x + tl, y);
-  ctx.lineTo(x + w - tr, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + tr);
-  ctx.lineTo(x + w, y + h - br);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
-  ctx.lineTo(x + bl, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - bl);
-  ctx.lineTo(x, y + tl);
-  ctx.quadraticCurveTo(x, y, x + tl, y);
-  ctx.closePath();
+// ── roundRect polyfill ─────────────────────────────────────────────────────
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+    if (typeof r === 'number') r = [r, r, r, r];
+    const [tl, tr, br, bl] = r;
+    this.moveTo(x + tl, y);
+    this.lineTo(x + w - tr, y);
+    this.quadraticCurveTo(x + w, y, x + w, y + tr);
+    this.lineTo(x + w, y + h - br);
+    this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+    this.lineTo(x + bl, y + h);
+    this.quadraticCurveTo(x, y + h, x, y + h - bl);
+    this.lineTo(x, y + tl);
+    this.quadraticCurveTo(x, y, x + tl, y);
+    this.closePath();
+  };
 }
 
-// ── Download ──────────────────────────────────────────────────────────────
+// ── Download ───────────────────────────────────────────────────────────────
 downloadBtn.addEventListener('click', () => {
-  const link     = document.createElement('a');
-  link.download  = 'bitovi-avatar.png';
-  link.href      = canvas.toDataURL('image/png');
+  const link    = document.createElement('a');
+  link.download = 'bitovi-avatar.png';
+  link.href     = canvas.toDataURL('image/png');
   link.click();
 });
 </script>
