@@ -72,7 +72,7 @@
     /* Canvas — displayed at 360px, rendered at 600px */
     canvas#preview {
       width: 360px; height: 360px;
-      border-radius: 20px;
+      border-radius: 50%;
       display: block;
       cursor: grab;
       filter: drop-shadow(0 16px 40px rgba(0,0,0,0.5));
@@ -183,15 +183,18 @@
 
 <script>
 const SIZE   = 600;
+const R      = SIZE / 2;   // circle radius
+const CX     = R, CY = R;  // circle center
 const RED    = '#F3684C';
 const GREEN  = '#10312F';
 const WHITE  = '#FFFFFF';
-const RADIUS = 44; // frame corner radius
 
-// Diagonal line: left side lower, right side higher (sweeps up left→right)
-// These are fractions of SIZE
-const DIAG_LEFT_Y  = 0.71;  // 71% down on left edge
-const DIAG_RIGHT_Y = 0.82;  // 82% down on right edge
+// Diagonal endpoints — computed to land exactly on the circle boundary
+// Left point: at y = 72% of SIZE, x solved from circle equation
+const DIAG_LY = SIZE * 0.72;
+const DIAG_RY = SIZE * 0.80;
+const DIAG_LX = CX - Math.sqrt(Math.max(0, R * R - (DIAG_LY - CY) ** 2));
+const DIAG_RX = CX + Math.sqrt(Math.max(0, R * R - (DIAG_RY - CY) ** 2));
 
 const LOGO_W = 109, LOGO_H = 34;
 const LOGO_PATH = new Path2D('M26.27 0C23.91 0 21.99 1.99 21.99 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S28.63 0 26.27 0zm78.44 0c-2.36 0-4.28 1.99-4.28 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S107.07 0 104.71 0zm-78.44 1.16c1.76 0 3.17 1.46 3.17 3.27s-1.41 3.27-3.17 3.27-3.17-1.46-3.17-3.27 1.41-3.27 3.17-3.27zM0 10.02v23.31h12.52c1.42 0 2.67-.15 3.75-.46 1.1-.33 2.01-.79 2.74-1.37.73-.58 1.28-1.25 1.64-2.03.37-.8.55-1.66.55-2.59v-.07c0-1.6-.43-2.83-1.29-3.7-.86-.86-2.02-1.52-3.48-1.96 1.23-.44 2.2-1.08 2.93-1.93.73-.87 1.1-2 1.1-3.4v-.06c0-.8-.13-1.5-.39-2.1-.26-.6-.6-1.11-1.01-1.53-.67-.69-1.52-1.2-2.55-1.56-1.01-.36-2.3-.54-3.87-.54H0zm22.5 23.31h7.55V10.02H22.5v23.31zm8.98-23.31v6.59h6.65v16.72h7.56V16.61h6.64v-6.59H31.48zm42.72 0l9.17 23.48h7.22l9.17-23.48h-8.32l-4.39 13.08-4.39-13.08h-8.46zm27.74 23.31h7.55V10.02h-7.55v23.31zM7.36 15.92h3.27c1.61 0 2.42.53 2.42 1.59v.06c0 1.07-.8 1.61-2.39 1.61H7.36v-3.26zm56.91-6.41c-1.74 0-3.36.32-4.87.96-1.5.62-2.82 1.5-3.94 2.61-1.09 1.09-1.96 2.37-2.6 3.86-.63 1.46-.94 3.04-.94 4.73v.06c0 1.69.31 3.28.94 4.76.62 1.47 1.48 2.75 2.58 3.84 1.12 1.09 2.42 1.94 3.9 2.56 1.51.62 3.14.94 4.88.94 1.74 0 3.37-.32 4.88-.94 1.5-.64 2.8-1.51 3.9-2.6 1.12-1.11 1.98-2.39 2.6-3.86.64-1.49.97-3.07.97-4.76v-.07c0-1.69-.31-3.26-.94-4.72-.62-1.49-1.5-2.78-2.62-3.87-1.1-1.09-2.4-1.94-3.9-2.56-1.49-.62-3.11-.94-4.85-.94zm-.06 6.9c.73 0 1.39.14 1.97.43.58.29 1.07.67 1.47 1.16.41.49.72 1.06.93 1.71.24.62.36 1.27.36 1.97v.06c0 .69-.11 1.34-.32 1.96-.22.62-.52 1.17-.93 1.66-.41.47-.91.84-1.49 1.13-.58.29-1.22.43-1.93.43-.73 0-1.39-.14-1.97-.43-.58-.29-1.08-.67-1.49-1.16-.41-.49-.72-1.07-.94-1.69-.22-.64-.33-1.3-.33-1.97v-.07c0-.69.11-1.34.33-1.96.22-.62.53-1.17.94-1.66.41-.49.91-.84 1.49-1.13.58-.29 1.22-.43 1.91-.43zM7.36 23.97h3.81c.82 0 1.44.16 1.85.47.41.31.61.72.61 1.23v.06c0 .51-.21.93-.64 1.24-.41.31-1.02.47-1.84.47H7.36v-3.47z');
@@ -258,9 +261,10 @@ function render() {
   if (!img) return;
   ctx.clearRect(0, 0, SIZE, SIZE);
 
-  // 1. Clip everything to rounded frame
+  // 1. Clip everything to a perfect circle (transparent outside = safe on any platform)
   ctx.save();
-  roundedRect(ctx, 0, 0, SIZE, SIZE, RADIUS);
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, Math.PI * 2);
   ctx.clip();
 
   // 2. Photo (cover + zoom + pan)
@@ -272,39 +276,39 @@ function render() {
   const dy = (SIZE - dh) / 2 + panY;
   ctx.drawImage(img, dx, dy, dw, dh);
 
-  // 3. Diagonal overlay with fade
-  const ly = DIAG_LEFT_Y * SIZE;   // y on left edge
-  const ry = DIAG_RIGHT_Y * SIZE;  // y on right edge
-
-  // Fade gradient: transparent at diagonal line, solid green lower down
-  const fadeHeight = 90; // px over which fade happens
-  const grad = ctx.createLinearGradient(0, ly - fadeHeight * 0.3, 0, ly + fadeHeight);
+  // 3. Diagonal overlay with fade — polygon clipped to circle
+  const fadeH = 100;
+  const fadeTop = Math.min(DIAG_LY, DIAG_RY) - fadeH * 0.4;
+  const fadeBot = Math.max(DIAG_LY, DIAG_RY) + fadeH;
+  const grad = ctx.createLinearGradient(0, fadeTop, 0, fadeBot);
   grad.addColorStop(0,    'rgba(16,49,47,0)');
-  grad.addColorStop(0.45, 'rgba(16,49,47,0.55)');
-  grad.addColorStop(1,    'rgba(16,49,47,0.97)');
+  grad.addColorStop(0.4,  'rgba(16,49,47,0.5)');
+  grad.addColorStop(1,    'rgba(16,49,47,0.96)');
 
   ctx.beginPath();
-  ctx.moveTo(0, ly);
-  ctx.lineTo(SIZE, ry);
-  ctx.lineTo(SIZE, SIZE);
-  ctx.lineTo(0, SIZE);
+  ctx.moveTo(DIAG_LX, DIAG_LY);
+  ctx.lineTo(DIAG_RX, DIAG_RY);
+  // Arc along the bottom of the circle to close the shape
+  const angleR = Math.atan2(DIAG_RY - CY, DIAG_RX - CX);
+  const angleL = Math.atan2(DIAG_LY - CY, DIAG_LX - CX);
+  ctx.arc(CX, CY, R, angleR, angleL, false); // clockwise bottom arc
   ctx.closePath();
   ctx.fillStyle = grad;
   ctx.fill();
 
   // 4. Red diagonal accent line
   ctx.beginPath();
-  ctx.moveTo(0, ly);
-  ctx.lineTo(SIZE, ry);
+  ctx.moveTo(DIAG_LX, DIAG_LY);
+  ctx.lineTo(DIAG_RX, DIAG_RY);
   ctx.strokeStyle = RED;
   ctx.lineWidth = 4;
   ctx.stroke();
 
-  // 5. Bitovi logo — bottom-right of the green zone
-  const logoCenterY = ly + (SIZE - ly) * 0.62; // slightly below midpoint of green zone
-  const logoTargetH = 28;
+  // 5. Bitovi logo — centered horizontally in the green zone (safe inside circle)
+  const logoCenterY = DIAG_LY + (SIZE - DIAG_LY) * 0.52;
+  const logoTargetH = 26;
   const logoTargetW = LOGO_W * (logoTargetH / LOGO_H);
-  const logoX = SIZE - logoTargetW - 28;
+  const logoX = CX - logoTargetW / 2;
   const logoY = logoCenterY - logoTargetH / 2;
 
   ctx.save();
