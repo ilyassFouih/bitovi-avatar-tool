@@ -6,213 +6,138 @@
   <title>Bitovi Avatar Generator</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --red:        #F3684C;
-      --dark-green: #10312F;
-      --off-white:  #EDEDED;
-      --white:      #FFFFFF;
+      --red:   #F3684C;
+      --green: #10312F;
+      --white: #FFFFFF;
     }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--dark-green);
+      background: var(--green);
       color: var(--white);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     header {
       width: 100%;
-      background: var(--dark-green);
       border-bottom: 1px solid rgba(255,255,255,0.07);
       padding: 18px 40px;
       display: flex;
       align-items: center;
     }
-    header .tagline {
-      font-size: 13px;
-      color: rgba(255,255,255,0.35);
-      margin-left: auto;
-      letter-spacing: 0.04em;
-    }
+    header .tagline { font-size: 13px; color: rgba(255,255,255,0.35); margin-left: auto; }
 
     main {
       width: 100%;
-      max-width: 520px;
-      padding: 52px 24px 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      text-align: center;
-      letter-spacing: -0.4px;
-    }
-    h1 span { color: var(--red); }
-
-    .subtitle {
-      font-size: 14px;
-      color: rgba(255,255,255,0.45);
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    /* ── Upload zone ── */
-    .upload-zone {
-      width: 100%;
-      border: 2px dashed rgba(255,255,255,0.18);
-      border-radius: 16px;
-      padding: 44px 24px;
+      max-width: 480px;
+      padding: 48px 24px 40px;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 10px;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      text-align: center;
+    }
+    h1 { font-size: 26px; font-weight: 700; text-align: center; }
+    h1 span { color: var(--red); }
+    .subtitle { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+
+    /* Upload */
+    .upload-zone {
+      width: 100%;
+      border: 2px dashed rgba(255,255,255,0.16);
+      border-radius: 14px;
+      padding: 44px 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      cursor: pointer; text-align: center;
+      transition: border-color .2s, background .2s;
     }
     .upload-zone:hover, .upload-zone.drag-over {
-      border-color: var(--red);
-      background: rgba(243,104,76,0.05);
+      border-color: var(--red); background: rgba(243,104,76,0.05);
     }
     .upload-zone input { display: none; }
     .upload-icon {
-      width: 48px; height: 48px;
+      width: 46px; height: 46px; border-radius: 50%;
       background: rgba(243,104,76,0.14);
-      border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
     }
-    .upload-zone p { font-size: 14px; color: rgba(255,255,255,0.5); }
+    .upload-zone p { font-size: 14px; color: rgba(255,255,255,0.45); }
     .upload-zone strong { color: var(--white); }
-    .upload-zone .hint { font-size: 12px; color: rgba(255,255,255,0.28); }
+    .upload-zone .hint { font-size: 12px; color: rgba(255,255,255,0.25); }
 
-    /* ── Editor (hidden until upload) ── */
-    .editor {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      gap: 28px;
-      width: 100%;
-    }
+    /* Editor */
+    .editor { display: none; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
     .editor.visible { display: flex; }
 
-    /* ── Canvas wrapper ── */
-    .canvas-wrap {
-      position: relative;
-      width: 320px;
-      height: 320px;
-      flex-shrink: 0;
-    }
-
+    /* Canvas — displayed at 360px, rendered at 600px */
     canvas#preview {
-      width: 320px;
-      height: 320px;
-      border-radius: 50%;
+      width: 360px; height: 360px;
+      border-radius: 20px;
       display: block;
-      /* subtle outer shadow so it floats */
-      filter: drop-shadow(0 16px 40px rgba(0,0,0,0.55));
+      cursor: grab;
+      filter: drop-shadow(0 16px 40px rgba(0,0,0,0.5));
+      touch-action: none;
+    }
+    canvas#preview.dragging { cursor: grabbing; }
+
+    .hint-drag {
+      font-size: 11px; color: rgba(255,255,255,0.3);
+      display: flex; align-items: center; gap: 5px; margin-top: -8px;
     }
 
-    /* ── Zoom control ── */
-    .zoom-row {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    /* Controls row */
+    .controls { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+    .ctrl-row { display: flex; align-items: center; gap: 10px; }
+    .ctrl-label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .1em; color: rgba(255,255,255,0.3); width: 36px;
     }
-    .zoom-label {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.35);
-      white-space: nowrap;
-    }
-    .zoom-icon { font-size: 18px; line-height: 1; color: rgba(255,255,255,0.4); user-select:none; }
+    .zoom-icon { font-size: 16px; color: rgba(255,255,255,0.35); user-select: none; }
 
     input[type=range] {
-      -webkit-appearance: none;
-      flex: 1;
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.12);
-      outline: none;
-      cursor: pointer;
+      -webkit-appearance: none; flex: 1; height: 4px;
+      border-radius: 2px; background: rgba(255,255,255,0.1); outline: none; cursor: pointer;
     }
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px; height: 20px;
-      border-radius: 50%;
-      background: var(--red);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      cursor: pointer;
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: var(--red); box-shadow: 0 2px 6px rgba(0,0,0,0.35); cursor: pointer;
     }
     input[type=range]::-moz-range-thumb {
-      width: 20px; height: 20px;
-      border: none;
-      border-radius: 50%;
-      background: var(--red);
-      cursor: pointer;
+      width: 18px; height: 18px; border: none; border-radius: 50%;
+      background: var(--red); cursor: pointer;
     }
 
-    /* ── Buttons ── */
+    /* Buttons */
+    .action-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
     .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 14px 28px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.15s, transform 0.1s;
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: none; transition: opacity .15s, transform .1s;
     }
-    .btn:active { transform: scale(0.97); }
+    .btn:active { transform: scale(.97); }
     .btn-primary { background: var(--red); color: var(--white); }
-    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:hover { opacity: .88; }
     .btn-secondary {
-      background: rgba(255,255,255,0.07);
-      color: var(--white);
+      background: rgba(255,255,255,0.07); color: var(--white);
       border: 1px solid rgba(255,255,255,0.12);
     }
-    .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+    .btn-secondary:hover { background: rgba(255,255,255,0.11); }
 
-    .action-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    footer {
-      margin-top: auto;
-      padding: 24px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.18);
-      text-align: center;
-    }
+    footer { margin-top: auto; padding: 24px; font-size: 12px; color: rgba(255,255,255,0.15); }
   </style>
 </head>
 <body>
 
 <header>
-  <svg width="88" height="27" viewBox="0 0 109 34" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path fill-rule="evenodd" clip-rule="evenodd" d="M26.2745 0C23.9148 0 21.9928 1.99387 21.9928 4.42787C21.9928 6.86212 23.9148 8.84676 26.2745 8.84676C28.6329 8.84676 30.5549 6.86212 30.5549 4.42787C30.5549 1.99387 28.6329 0 26.2745 0ZM104.711 0C102.351 0 100.429 1.99387 100.429 4.42787C100.429 6.86109 102.352 8.84676 104.711 8.84676C107.069 8.84676 109 6.8634 109 4.42787C109 1.99285 107.07 0 104.711 0ZM26.2745 1.15513C28.0319 1.15513 29.4464 2.61435 29.4464 4.42787C29.4464 6.24138 28.0319 7.70009 26.2745 7.70009C24.5166 7.70009 23.102 6.24138 23.102 4.42787C23.102 2.61435 24.5166 1.15513 26.2745 1.15513ZM0 10.0178V33.325H12.5214C13.9415 33.325 15.1934 33.1759 16.2691 32.8662C17.3666 32.5327 18.2817 32.0726 19.0135 31.4956C19.7449 30.9174 20.2901 30.2439 20.656 29.4664C21.0214 28.6669 21.2064 27.802 21.2064 26.8692V26.797C21.2064 25.1992 20.7739 23.9659 19.9127 23.101C19.0523 22.2351 17.8902 21.5791 16.4267 21.1351C17.6539 20.6911 18.6315 20.0499 19.3623 19.2055C20.0944 18.3396 20.4636 17.2052 20.4636 15.807V15.7442C20.4636 14.9439 20.3372 14.2422 20.0788 13.6425C19.8211 13.0425 19.483 12.532 19.0739 12.1098C18.4068 11.4214 17.5555 10.9039 16.5238 10.5499C15.5122 10.194 14.2227 10.0178 12.6523 10.0178H0ZM22.4995 33.325H30.0484V10.0173H22.4995V33.325ZM31.4814 10.0178V16.6083H38.1311V33.325H45.6892V16.6083H52.3285V10.0178H31.4814ZM74.1992 10.0178L83.366 33.4972H90.5907L99.7563 10.0178H91.4382L87.0432 23.101L82.6568 10.0178H74.1992ZM100.937 33.325H108.486V10.0173H100.937V33.325ZM7.3585 15.9151H10.6245C12.2384 15.9151 13.0455 16.4446 13.0455 17.5104V17.5734C13.0455 18.6388 12.2432 19.1781 10.6511 19.1781V19.1702H7.3585V15.9161V15.9151ZM64.2745 9.51284C62.531 9.51284 60.9119 9.83409 59.4062 10.4774C57.9008 11.0989 56.5846 11.9737 55.4657 13.0822C54.3684 14.171 53.4988 15.4555 52.8541 16.9427C52.2292 18.4073 51.9184 19.9879 51.9184 21.6767V21.7384C51.9184 23.4259 52.2292 25.0134 52.8541 26.5001C53.4777 27.9649 54.3337 29.2438 55.4307 30.3326C56.5501 31.4198 57.8517 32.2708 59.337 32.8926C60.8431 33.5144 62.4695 33.8315 64.2122 33.8315C65.9552 33.8315 67.5815 33.5144 69.0889 32.8926C70.5943 32.2491 71.8967 31.3847 72.9932 30.2957C74.1121 29.1851 74.9825 27.9019 75.6061 26.4358C76.2518 24.9491 76.5753 23.3629 76.5753 21.6767V21.6044C76.5753 19.9169 76.2647 18.3442 75.6408 16.8807C75.018 15.3917 74.1389 14.0988 73.02 13.0113C71.9222 11.9243 70.6296 11.072 69.1234 10.45C67.6381 9.82923 66.0165 9.51284 64.2745 9.51284ZM64.2122 16.4101C64.9438 16.4101 65.5972 16.5545 66.1786 16.844C66.7595 17.1317 67.2553 17.5183 67.6639 18.0058C68.0728 18.4946 68.3829 19.0669 68.5991 19.7105C68.8352 20.3322 68.9571 20.9883 68.9571 21.6767V21.7384C68.9571 22.4283 68.8486 23.0828 68.6341 23.7059C68.4174 24.3264 68.1068 24.8836 67.6987 25.3726C67.2891 25.8394 66.7945 26.2108 66.2131 26.5001C65.6317 26.789 64.9927 26.9323 64.2825 26.9323C63.5509 26.9323 62.889 26.789 62.3081 26.5001C61.7269 26.2108 61.2312 25.8255 60.8225 25.337C60.4142 24.8482 60.0971 24.2895 59.8615 23.6677C59.6461 23.0244 59.5381 22.3635 59.5381 21.6767V21.6044C59.5381 20.9161 59.6461 20.2597 59.8615 19.6387C60.076 19.0165 60.3873 18.4728 60.7965 18.0058C61.2048 17.5183 61.7011 17.1317 62.2825 16.844C62.8622 16.5545 63.5024 16.4101 64.2122 16.4101ZM7.3585 23.9659H11.1665C11.9855 23.9659 12.6016 24.1242 13.0108 24.4352C13.4201 24.746 13.6222 25.1592 13.6222 25.6708V25.7325C13.6222 26.2441 13.4067 26.6584 12.975 26.9691C12.5664 27.2801 11.9592 27.4372 11.1409 27.4372H7.3585V23.9659Z" fill="white"/>
+  <svg width="88" height="27" viewBox="0 0 109 34" fill="none">
+    <path fill="white" fill-rule="evenodd" d="M26.27 0C23.91 0 21.99 1.99 21.99 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S28.63 0 26.27 0zm78.44 0c-2.36 0-4.28 1.99-4.28 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S107.07 0 104.71 0zm-78.44 1.16c1.76 0 3.17 1.46 3.17 3.27s-1.41 3.27-3.17 3.27-3.17-1.46-3.17-3.27 1.41-3.27 3.17-3.27zM0 10.02v23.31h12.52c1.42 0 2.67-.15 3.75-.46 1.1-.33 2.01-.79 2.74-1.37.73-.58 1.28-1.25 1.64-2.03.37-.8.55-1.66.55-2.59v-.07c0-1.6-.43-2.83-1.29-3.7-.86-.86-2.02-1.52-3.48-1.96 1.23-.44 2.2-1.08 2.93-1.93.73-.87 1.1-2 1.1-3.4v-.06c0-.8-.13-1.5-.39-2.1-.26-.6-.6-1.11-1.01-1.53-.67-.69-1.52-1.2-2.55-1.56-1.01-.36-2.3-.54-3.87-.54H0zm22.5 23.31h7.55V10.02H22.5v23.31zm8.98-23.31v6.59h6.65v16.72h7.56V16.61h6.64v-6.59H31.48zm42.72 0l9.17 23.48h7.22l9.17-23.48h-8.32l-4.39 13.08-4.39-13.08h-8.46zm27.74 23.31h7.55V10.02h-7.55v23.31zM7.36 15.92h3.27c1.61 0 2.42.53 2.42 1.59v.06c0 1.07-.8 1.61-2.39 1.61H7.36v-3.26zm56.91-6.41c-1.74 0-3.36.32-4.87.96-1.5.62-2.82 1.5-3.94 2.61-1.09 1.09-1.96 2.37-2.6 3.86-.63 1.46-.94 3.04-.94 4.73v.06c0 1.69.31 3.28.94 4.76.62 1.47 1.48 2.75 2.58 3.84 1.12 1.09 2.42 1.94 3.9 2.56 1.51.62 3.14.94 4.88.94 1.74 0 3.37-.32 4.88-.94 1.5-.64 2.8-1.51 3.9-2.6 1.12-1.11 1.98-2.39 2.6-3.86.64-1.49.97-3.07.97-4.76v-.07c0-1.69-.31-3.26-.94-4.72-.62-1.49-1.5-2.78-2.62-3.87-1.1-1.09-2.4-1.94-3.9-2.56-1.49-.62-3.11-.94-4.85-.94zm-.06 6.9c.73 0 1.39.14 1.97.43.58.29 1.07.67 1.47 1.16.41.49.72 1.06.93 1.71.24.62.36 1.27.36 1.97v.06c0 .69-.11 1.34-.32 1.96-.22.62-.52 1.17-.93 1.66-.41.47-.91.84-1.49 1.13-.58.29-1.22.43-1.93.43-.73 0-1.39-.14-1.97-.43-.58-.29-1.08-.67-1.49-1.16-.41-.49-.72-1.07-.94-1.69-.22-.64-.33-1.3-.33-1.97v-.07c0-.69.11-1.34.33-1.96.22-.62.53-1.17.94-1.66.41-.49.91-.84 1.49-1.13.58-.29 1.22-.43 1.91-.43zM7.36 23.97h3.81c.82 0 1.44.16 1.85.47.41.31.61.72.61 1.23v.06c0 .51-.21.93-.64 1.24-.41.31-1.02.47-1.84.47H7.36v-3.47z"/>
   </svg>
   <span class="tagline">Avatar Generator</span>
 </header>
 
 <main>
   <h1>Your <span>Bitovi</span> Avatar</h1>
-  <p class="subtitle">Upload your photo, zoom to fit, download.</p>
+  <p class="subtitle">Upload, drag to position, zoom to fit.</p>
 
   <label class="upload-zone" id="dropzone">
     <input type="file" id="fileInput" accept="image/*" />
@@ -227,20 +152,24 @@
   </label>
 
   <div class="editor" id="editor">
-    <div class="canvas-wrap">
-      <canvas id="preview" width="600" height="600"></canvas>
-    </div>
+    <canvas id="preview" width="600" height="600"></canvas>
+    <p class="hint-drag">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M3 12h18M12 3v18" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/></svg>
+      Drag to reposition
+    </p>
 
-    <div class="zoom-row">
-      <span class="zoom-icon">⊖</span>
-      <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1" />
-      <span class="zoom-icon">⊕</span>
+    <div class="controls">
+      <div class="ctrl-row">
+        <span class="zoom-icon">⊖</span>
+        <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1" />
+        <span class="zoom-icon">⊕</span>
+      </div>
     </div>
 
     <div class="action-row">
       <button class="btn btn-secondary" id="resetBtn">Change photo</button>
       <button class="btn btn-primary" id="downloadBtn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
           <path d="M12 16L7 11M12 16L17 11M12 16V4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <path d="M3 18H21" stroke="white" stroke-width="2" stroke-linecap="round"/>
         </svg>
@@ -253,183 +182,163 @@
 <footer>Bitovi · Internal tool · Brand guidelines v1.1</footer>
 
 <script>
-// ── Constants ─────────────────────────────────────────────────────────────
-const SIZE       = 600;          // output canvas px
-const RING_W     = 22;           // ring stroke width (px at SIZE scale)
-const LOGO_W_SRC = 109;
-const LOGO_H_SRC = 34;
+const SIZE   = 600;
+const RED    = '#F3684C';
+const GREEN  = '#10312F';
+const WHITE  = '#FFFFFF';
+const RADIUS = 44; // frame corner radius
 
-const RED        = '#F3684C';
-const GREEN      = '#10312F';
-const WHITE      = '#FFFFFF';
+// Diagonal line: left side lower, right side higher (sweeps up left→right)
+// These are fractions of SIZE
+const DIAG_LEFT_Y  = 0.71;  // 71% down on left edge
+const DIAG_RIGHT_Y = 0.82;  // 82% down on right edge
 
-// Bitovi logo path (viewBox 0 0 109 34)
-const LOGO_PATH_DATA =
-  'M26.2745 0C23.9148 0 21.9928 1.99387 21.9928 4.42787C21.9928 6.86212 23.9148 8.84676 26.2745 8.84676C28.6329 8.84676 30.5549 6.86212 30.5549 4.42787C30.5549 1.99387 28.6329 0 26.2745 0ZM104.711 0C102.351 0 100.429 1.99387 100.429 4.42787C100.429 6.86109 102.352 8.84676 104.711 8.84676C107.069 8.84676 109 6.8634 109 4.42787C109 1.99285 107.07 0 104.711 0ZM26.2745 1.15513C28.0319 1.15513 29.4464 2.61435 29.4464 4.42787C29.4464 6.24138 28.0319 7.70009 26.2745 7.70009C24.5166 7.70009 23.102 6.24138 23.102 4.42787C23.102 2.61435 24.5166 1.15513 26.2745 1.15513ZM0 10.0178V33.325H12.5214C13.9415 33.325 15.1934 33.1759 16.2691 32.8662C17.3666 32.5327 18.2817 32.0726 19.0135 31.4956C19.7449 30.9174 20.2901 30.2439 20.656 29.4664C21.0214 28.6669 21.2064 27.802 21.2064 26.8692V26.797C21.2064 25.1992 20.7739 23.9659 19.9127 23.101C19.0523 22.2351 17.8902 21.5791 16.4267 21.1351C17.6539 20.6911 18.6315 20.0499 19.3623 19.2055C20.0944 18.3396 20.4636 17.2052 20.4636 15.807V15.7442C20.4636 14.9439 20.3372 14.2422 20.0788 13.6425C19.8211 13.0425 19.483 12.532 19.0739 12.1098C18.4068 11.4214 17.5555 10.9039 16.5238 10.5499C15.5122 10.194 14.2227 10.0178 12.6523 10.0178H0ZM22.4995 33.325H30.0484V10.0173H22.4995V33.325ZM31.4814 10.0178V16.6083H38.1311V33.325H45.6892V16.6083H52.3285V10.0178H31.4814ZM74.1992 10.0178L83.366 33.4972H90.5907L99.7563 10.0178H91.4382L87.0432 23.101L82.6568 10.0178H74.1992ZM100.937 33.325H108.486V10.0173H100.937V33.325ZM7.3585 15.9151H10.6245C12.2384 15.9151 13.0455 16.4446 13.0455 17.5104V17.5734C13.0455 18.6388 12.2432 19.1781 10.6511 19.1781V19.1702H7.3585V15.9161V15.9151ZM64.2745 9.51284C62.531 9.51284 60.9119 9.83409 59.4062 10.4774C57.9008 11.0989 56.5846 11.9737 55.4657 13.0822C54.3684 14.171 53.4988 15.4555 52.8541 16.9427C52.2292 18.4073 51.9184 19.9879 51.9184 21.6767V21.7384C51.9184 23.4259 52.2292 25.0134 52.8541 26.5001C53.4777 27.9649 54.3337 29.2438 55.4307 30.3326C56.5501 31.4198 57.8517 32.2708 59.337 32.8926C60.8431 33.5144 62.4695 33.8315 64.2122 33.8315C65.9552 33.8315 67.5815 33.5144 69.0889 32.8926C70.5943 32.2491 71.8967 31.3847 72.9932 30.2957C74.1121 29.1851 74.9825 27.9019 75.6061 26.4358C76.2518 24.9491 76.5753 23.3629 76.5753 21.6767V21.6044C76.5753 19.9169 76.2647 18.3442 75.6408 16.8807C75.018 15.3917 74.1389 14.0988 73.02 13.0113C71.9222 11.9243 70.6296 11.072 69.1234 10.45C67.6381 9.82923 66.0165 9.51284 64.2745 9.51284ZM64.2122 16.4101C64.9438 16.4101 65.5972 16.5545 66.1786 16.844C66.7595 17.1317 67.2553 17.5183 67.6639 18.0058C68.0728 18.4946 68.3829 19.0669 68.5991 19.7105C68.8352 20.3322 68.9571 20.9883 68.9571 21.6767V21.7384C68.9571 22.4283 68.8486 23.0828 68.6341 23.7059C68.4174 24.3264 68.1068 24.8836 67.6987 25.3726C67.2891 25.8394 66.7945 26.2108 66.2131 26.5001C65.6317 26.789 64.9927 26.9323 64.2825 26.9323C63.5509 26.9323 62.889 26.789 62.3081 26.5001C61.7269 26.2108 61.2312 25.8255 60.8225 25.337C60.4142 24.8482 60.0971 24.2895 59.8615 23.6677C59.6461 23.0244 59.5381 22.3635 59.5381 21.6767V21.6044C59.5381 20.9161 59.6461 20.2597 59.8615 19.6387C60.076 19.0165 60.3873 18.4728 60.7965 18.0058C61.2048 17.5183 61.7011 17.1317 62.2825 16.844C62.8622 16.5545 63.5024 16.4101 64.2122 16.4101ZM7.3585 23.9659H11.1665C11.9855 23.9659 12.6016 24.1242 13.0108 24.4352C13.4201 24.746 13.6222 25.1592 13.6222 25.6708V25.7325C13.6222 26.2441 13.4067 26.6584 12.975 26.9691C12.5664 27.2801 11.9592 27.4372 11.1409 27.4372H7.3585V23.9659Z';
+const LOGO_W = 109, LOGO_H = 34;
+const LOGO_PATH = new Path2D('M26.27 0C23.91 0 21.99 1.99 21.99 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S28.63 0 26.27 0zm78.44 0c-2.36 0-4.28 1.99-4.28 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S107.07 0 104.71 0zm-78.44 1.16c1.76 0 3.17 1.46 3.17 3.27s-1.41 3.27-3.17 3.27-3.17-1.46-3.17-3.27 1.41-3.27 3.17-3.27zM0 10.02v23.31h12.52c1.42 0 2.67-.15 3.75-.46 1.1-.33 2.01-.79 2.74-1.37.73-.58 1.28-1.25 1.64-2.03.37-.8.55-1.66.55-2.59v-.07c0-1.6-.43-2.83-1.29-3.7-.86-.86-2.02-1.52-3.48-1.96 1.23-.44 2.2-1.08 2.93-1.93.73-.87 1.1-2 1.1-3.4v-.06c0-.8-.13-1.5-.39-2.1-.26-.6-.6-1.11-1.01-1.53-.67-.69-1.52-1.2-2.55-1.56-1.01-.36-2.3-.54-3.87-.54H0zm22.5 23.31h7.55V10.02H22.5v23.31zm8.98-23.31v6.59h6.65v16.72h7.56V16.61h6.64v-6.59H31.48zm42.72 0l9.17 23.48h7.22l9.17-23.48h-8.32l-4.39 13.08-4.39-13.08h-8.46zm27.74 23.31h7.55V10.02h-7.55v23.31zM7.36 15.92h3.27c1.61 0 2.42.53 2.42 1.59v.06c0 1.07-.8 1.61-2.39 1.61H7.36v-3.26zm56.91-6.41c-1.74 0-3.36.32-4.87.96-1.5.62-2.82 1.5-3.94 2.61-1.09 1.09-1.96 2.37-2.6 3.86-.63 1.46-.94 3.04-.94 4.73v.06c0 1.69.31 3.28.94 4.76.62 1.47 1.48 2.75 2.58 3.84 1.12 1.09 2.42 1.94 3.9 2.56 1.51.62 3.14.94 4.88.94 1.74 0 3.37-.32 4.88-.94 1.5-.64 2.8-1.51 3.9-2.6 1.12-1.11 1.98-2.39 2.6-3.86.64-1.49.97-3.07.97-4.76v-.07c0-1.69-.31-3.26-.94-4.72-.62-1.49-1.5-2.78-2.62-3.87-1.1-1.09-2.4-1.94-3.9-2.56-1.49-.62-3.11-.94-4.85-.94zm-.06 6.9c.73 0 1.39.14 1.97.43.58.29 1.07.67 1.47 1.16.41.49.72 1.06.93 1.71.24.62.36 1.27.36 1.97v.06c0 .69-.11 1.34-.32 1.96-.22.62-.52 1.17-.93 1.66-.41.47-.91.84-1.49 1.13-.58.29-1.22.43-1.93.43-.73 0-1.39-.14-1.97-.43-.58-.29-1.08-.67-1.49-1.16-.41-.49-.72-1.07-.94-1.69-.22-.64-.33-1.3-.33-1.97v-.07c0-.69.11-1.34.33-1.96.22-.62.53-1.17.94-1.66.41-.49.91-.84 1.49-1.13.58-.29 1.22-.43 1.91-.43zM7.36 23.97h3.81c.82 0 1.44.16 1.85.47.41.31.61.72.61 1.23v.06c0 .51-.21.93-.64 1.24-.41.31-1.02.47-1.84.47H7.36v-3.47z');
 
-const LOGO_PATH = new Path2D(LOGO_PATH_DATA);
+// State
+let img = null, zoom = 1, panX = 0, panY = 0;
+let drag = false, dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
 
-// ── State ──────────────────────────────────────────────────────────────────
-let userImage = null;
-let zoom = 1; // 1.0 = fit, up to 3.0
-
-// ── DOM ────────────────────────────────────────────────────────────────────
+const canvas      = document.getElementById('preview');
+const ctx         = canvas.getContext('2d');
 const dropzone    = document.getElementById('dropzone');
 const fileInput   = document.getElementById('fileInput');
 const editor      = document.getElementById('editor');
-const canvas      = document.getElementById('preview');
-const ctx         = canvas.getContext('2d');
 const zoomSlider  = document.getElementById('zoomSlider');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetBtn    = document.getElementById('resetBtn');
 
-// ── File handling ──────────────────────────────────────────────────────────
+// ── File load ──────────────────────────────────────────────────────────────
 fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
 dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
 dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-dropzone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropzone.classList.remove('drag-over');
-  loadFile(e.dataTransfer.files[0]);
-});
-resetBtn.addEventListener('click', () => {
-  userImage = null;
-  fileInput.value = '';
-  zoomSlider.value = 100;
-  zoom = 1;
-  editor.classList.remove('visible');
-  dropzone.style.display = '';
-});
+dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('drag-over'); loadFile(e.dataTransfer.files[0]); });
 
 function loadFile(file) {
-  if (!file || !file.type.startsWith('image/')) return;
+  if (!file?.type.startsWith('image/')) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const img = new Image();
-    img.onload = () => {
-      userImage = img;
-      zoom = 1;
-      zoomSlider.value = 100;
-      dropzone.style.display = 'none';
-      editor.classList.add('visible');
-      render();
-    };
-    img.src = ev.target.result;
+    const i = new Image();
+    i.onload = () => { img = i; zoom = 1; panX = 0; panY = 0; zoomSlider.value = 100; dropzone.style.display = 'none'; editor.classList.add('visible'); render(); };
+    i.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
+resetBtn.addEventListener('click', () => { img = null; fileInput.value = ''; editor.classList.remove('visible'); dropzone.style.display = ''; });
+
 // ── Zoom ───────────────────────────────────────────────────────────────────
-zoomSlider.addEventListener('input', () => {
-  zoom = zoomSlider.value / 100;
-  render();
-});
+zoomSlider.addEventListener('input', () => { zoom = zoomSlider.value / 100; clampPan(); render(); });
+
+// ── Drag to pan (mouse) ────────────────────────────────────────────────────
+canvas.addEventListener('mousedown', e => { if (!img) return; drag = true; canvas.classList.add('dragging'); dragStartX = e.clientX; dragStartY = e.clientY; panStartX = panX; panStartY = panY; });
+window.addEventListener('mousemove', e => { if (!drag) return; const scale = SIZE / 360; panX = panStartX + (e.clientX - dragStartX) * scale; panY = panStartY + (e.clientY - dragStartY) * scale; clampPan(); render(); });
+window.addEventListener('mouseup', () => { drag = false; canvas.classList.remove('dragging'); });
+
+// ── Drag to pan (touch) ────────────────────────────────────────────────────
+canvas.addEventListener('touchstart', e => { if (!img) return; e.preventDefault(); drag = true; dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY; panStartX = panX; panStartY = panY; }, { passive: false });
+window.addEventListener('touchmove', e => { if (!drag) return; const scale = SIZE / 360; panX = panStartX + (e.touches[0].clientX - dragStartX) * scale; panY = panStartY + (e.touches[0].clientY - dragStartY) * scale; clampPan(); render(); }, { passive: true });
+window.addEventListener('touchend', () => { drag = false; });
+
+function clampPan() {
+  if (!img) return;
+  const aspect = img.naturalWidth / img.naturalHeight;
+  let dw, dh;
+  if (aspect >= 1) { dh = SIZE * zoom; dw = dh * aspect; }
+  else             { dw = SIZE * zoom; dh = dw / aspect; }
+  const maxPanX = Math.max(0, (dw - SIZE) / 2);
+  const maxPanY = Math.max(0, (dh - SIZE) / 2);
+  panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+  panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+}
 
 // ── Render ─────────────────────────────────────────────────────────────────
 function render() {
-  if (!userImage) return;
+  if (!img) return;
   ctx.clearRect(0, 0, SIZE, SIZE);
 
-  const cx = SIZE / 2;
-  const cy = SIZE / 2;
-  const r  = SIZE / 2;
-
-  // ── 1. Clip to circle (inset by half ring width so photo sits inside ring)
-  const photoR = r - RING_W;
+  // 1. Clip everything to rounded frame
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, photoR, 0, Math.PI * 2);
+  roundedRect(ctx, 0, 0, SIZE, SIZE, RADIUS);
   ctx.clip();
 
-  // ── 2. Draw user photo (cover + zoom)
-  const scale = zoom;
-  const imgAspect = userImage.naturalWidth / userImage.naturalHeight;
-  let drawW, drawH;
-  if (imgAspect >= 1) {
-    drawH = photoR * 2 * scale;
-    drawW = drawH * imgAspect;
-  } else {
-    drawW = photoR * 2 * scale;
-    drawH = drawW / imgAspect;
-  }
-  const dx = cx - drawW / 2;
-  const dy = cy - drawH / 2;
-  ctx.drawImage(userImage, dx, dy, drawW, drawH);
-  ctx.restore();
+  // 2. Photo (cover + zoom + pan)
+  const aspect = img.naturalWidth / img.naturalHeight;
+  let dw, dh;
+  if (aspect >= 1) { dh = SIZE * zoom; dw = dh * aspect; }
+  else             { dw = SIZE * zoom; dh = dw / aspect; }
+  const dx = (SIZE - dw) / 2 + panX;
+  const dy = (SIZE - dh) / 2 + panY;
+  ctx.drawImage(img, dx, dy, dw, dh);
 
-  // ── 3. Branded ring
-  // Outer ring: dark green fill ring
-  ctx.beginPath();
-  ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);       // outer edge
-  ctx.arc(cx, cy, photoR, 0, Math.PI * 2, true); // inner edge (hole)
-  ctx.fillStyle = GREEN;
-  ctx.fill('evenodd');
+  // 3. Diagonal overlay with fade
+  const ly = DIAG_LEFT_Y * SIZE;   // y on left edge
+  const ry = DIAG_RIGHT_Y * SIZE;  // y on right edge
 
-  // Red arc — symmetric around the bottom (π/2), spanning ±75°
-  const arcStart = Math.PI / 2 - Math.PI * 75 / 180;
-  const arcEnd   = Math.PI / 2 + Math.PI * 75 / 180;
+  // Fade gradient: transparent at diagonal line, solid green lower down
+  const fadeHeight = 90; // px over which fade happens
+  const grad = ctx.createLinearGradient(0, ly - fadeHeight * 0.3, 0, ly + fadeHeight);
+  grad.addColorStop(0,    'rgba(16,49,47,0)');
+  grad.addColorStop(0.45, 'rgba(16,49,47,0.55)');
+  grad.addColorStop(1,    'rgba(16,49,47,0.97)');
+
   ctx.beginPath();
-  ctx.arc(cx, cy, r - 1, arcStart, arcEnd);
-  ctx.arc(cx, cy, photoR, arcEnd, arcStart, true);
+  ctx.moveTo(0, ly);
+  ctx.lineTo(SIZE, ry);
+  ctx.lineTo(SIZE, SIZE);
+  ctx.lineTo(0, SIZE);
   ctx.closePath();
-  ctx.fillStyle = RED;
+  ctx.fillStyle = grad;
   ctx.fill();
 
-  // ── 4. Logo pill on the bottom arc
-  // Position: bottom-center of the ring arc
-  const PILL_W  = 140;
-  const PILL_H  = 40;
-  const PILL_R  = PILL_H / 2;
-  const pillX   = cx - PILL_W / 2;
-  const pillY   = cy + photoR + (RING_W - PILL_H) / 2;  // vertically centered in ring
-
-  // Pill background (same red, slightly darker outline)
+  // 4. Red diagonal accent line
   ctx.beginPath();
-  ctx.roundRect(pillX, pillY, PILL_W, PILL_H, PILL_R);
-  ctx.fillStyle = RED;
-  ctx.fill();
+  ctx.moveTo(0, ly);
+  ctx.lineTo(SIZE, ry);
+  ctx.strokeStyle = RED;
+  ctx.lineWidth = 4;
+  ctx.stroke();
 
-  // Logo inside pill — scale to fit with padding
-  const logoPadX = 14;
-  const logoPadY = (PILL_H - 34 * (PILL_H - 10) / 34) / 2;
-  const logoTargetH = PILL_H - 14;
-  const logoTargetW = LOGO_W_SRC * (logoTargetH / LOGO_H_SRC);
-  const logoX = pillX + (PILL_W - logoTargetW) / 2;
-  const logoY = pillY + (PILL_H - logoTargetH) / 2;
+  // 5. Bitovi logo — bottom-right of the green zone
+  const logoCenterY = ly + (SIZE - ly) * 0.62; // slightly below midpoint of green zone
+  const logoTargetH = 28;
+  const logoTargetW = LOGO_W * (logoTargetH / LOGO_H);
+  const logoX = SIZE - logoTargetW - 28;
+  const logoY = logoCenterY - logoTargetH / 2;
 
   ctx.save();
   ctx.translate(logoX, logoY);
-  ctx.scale(logoTargetW / LOGO_W_SRC, logoTargetH / LOGO_H_SRC);
+  ctx.scale(logoTargetW / LOGO_W, logoTargetH / LOGO_H);
   ctx.fillStyle = WHITE;
   ctx.fill(LOGO_PATH);
   ctx.restore();
-}
 
-// ── roundRect polyfill ─────────────────────────────────────────────────────
-if (!CanvasRenderingContext2D.prototype.roundRect) {
-  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-    if (typeof r === 'number') r = [r, r, r, r];
-    const [tl, tr, br, bl] = r;
-    this.moveTo(x + tl, y);
-    this.lineTo(x + w - tr, y);
-    this.quadraticCurveTo(x + w, y, x + w, y + tr);
-    this.lineTo(x + w, y + h - br);
-    this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
-    this.lineTo(x + bl, y + h);
-    this.quadraticCurveTo(x, y + h, x, y + h - bl);
-    this.lineTo(x, y + tl);
-    this.quadraticCurveTo(x, y, x + tl, y);
-    this.closePath();
-  };
+  ctx.restore();
 }
 
 // ── Download ───────────────────────────────────────────────────────────────
 downloadBtn.addEventListener('click', () => {
-  const link    = document.createElement('a');
-  link.download = 'bitovi-avatar.png';
-  link.href     = canvas.toDataURL('image/png');
-  link.click();
+  const a = document.createElement('a');
+  a.download = 'bitovi-avatar.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
 });
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
 </script>
 </body>
 </html>
