@@ -6,48 +6,36 @@
   <title>Bitovi Avatar Generator</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --red:   #F3684C;
-      --green: #10312F;
-      --white: #FFFFFF;
-    }
+    :root { --red: #F3684C; --green: #10312F; --white: #fff; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: var(--green);
       color: var(--white);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
     }
+
     header {
-      width: 100%;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
-      padding: 18px 40px;
-      display: flex;
-      align-items: center;
+      width: 100%; border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 16px 40px; display: flex; align-items: center;
     }
-    header .tagline { font-size: 13px; color: rgba(255,255,255,0.35); margin-left: auto; }
+    header .tagline { font-size: 12px; color: rgba(255,255,255,0.3); margin-left: auto; }
 
     main {
-      width: 100%;
-      max-width: 480px;
-      padding: 48px 24px 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
+      width: 100%; max-width: 480px;
+      padding: 44px 24px 36px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
-    h1 { font-size: 26px; font-weight: 700; text-align: center; }
-    h1 span { color: var(--red); }
-    .subtitle { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
 
-    /* Upload */
+    h1 { font-size: 24px; font-weight: 700; text-align: center; }
+    h1 span { color: var(--red); }
+    .subtitle { font-size: 13px; color: rgba(255,255,255,0.38); margin-bottom: 10px; }
+
+    /* ── Upload ── */
     .upload-zone {
-      width: 100%;
-      border: 2px dashed rgba(255,255,255,0.16);
-      border-radius: 14px;
-      padding: 44px 24px;
+      width: 100%; border: 2px dashed rgba(255,255,255,0.14);
+      border-radius: 14px; padding: 44px 24px;
       display: flex; flex-direction: column; align-items: center; gap: 10px;
       cursor: pointer; text-align: center;
       transition: border-color .2s, background .2s;
@@ -56,62 +44,111 @@
       border-color: var(--red); background: rgba(243,104,76,0.05);
     }
     .upload-zone input { display: none; }
-    .upload-icon {
-      width: 46px; height: 46px; border-radius: 50%;
-      background: rgba(243,104,76,0.14);
+    .up-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(243,104,76,0.13);
       display: flex; align-items: center; justify-content: center;
     }
     .upload-zone p { font-size: 14px; color: rgba(255,255,255,0.45); }
     .upload-zone strong { color: var(--white); }
-    .upload-zone .hint { font-size: 12px; color: rgba(255,255,255,0.25); }
+    .upload-zone .hint { font-size: 11px; color: rgba(255,255,255,0.22); }
 
-    /* Editor */
-    .editor { display: none; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
+    /* ── Editor ── */
+    .editor { display: none; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
     .editor.visible { display: flex; }
 
-    /* Canvas — displayed at 360px, rendered at 600px */
     canvas#preview {
-      width: 360px; height: 360px;
-      border-radius: 50%;
-      display: block;
-      cursor: grab;
-      filter: drop-shadow(0 16px 40px rgba(0,0,0,0.5));
-      touch-action: none;
+      width: 360px; height: 360px; display: block;
+      cursor: grab; touch-action: none;
+      filter: drop-shadow(0 14px 36px rgba(0,0,0,0.55));
     }
     canvas#preview.dragging { cursor: grabbing; }
 
     .hint-drag {
-      font-size: 11px; color: rgba(255,255,255,0.3);
-      display: flex; align-items: center; gap: 5px; margin-top: -8px;
+      font-size: 11px; color: rgba(255,255,255,0.25);
+      display: flex; align-items: center; gap: 5px; margin-top: -6px;
     }
 
-    /* Controls row */
-    .controls { width: 100%; display: flex; flex-direction: column; gap: 14px; }
-    .ctrl-row { display: flex; align-items: center; gap: 10px; }
-    .ctrl-label {
-      font-size: 11px; font-weight: 600; text-transform: uppercase;
-      letter-spacing: .1em; color: rgba(255,255,255,0.3); width: 36px;
+    /* ── Controls ── */
+    .section { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    .section-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: rgba(255,255,255,0.28);
     }
-    .zoom-icon { font-size: 16px; color: rgba(255,255,255,0.35); user-select: none; }
 
+    /* Logo picker */
+    /* Presets */
+    .preset-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .preset-card {
+      background: rgba(255,255,255,0.05); border: 1.5px solid transparent;
+      border-radius: 10px; padding: 10px 6px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      transition: border-color .15s, background .15s;
+    }
+    .preset-card:hover { background: rgba(255,255,255,0.09); }
+    .preset-card.active { border-color: var(--red); background: rgba(243,104,76,0.09); }
+    .preset-thumb {
+      width: 44px; height: 44px; border-radius: 50%; overflow: hidden;
+      background: #1a3f3d; position: relative; flex-shrink: 0;
+    }
+    .preset-thumb.square { border-radius: 8px; }
+    .preset-thumb.oval { border-radius: 50% / 40%; }
+    .preset-diag {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: #10312F; clip-path: polygon(0 40%, 100% 60%, 100% 100%, 0 100%);
+    }
+    .preset-line {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--red);
+      clip-path: polygon(0 40%, 100% 60%, 100% 100%, 0 100%);
+    }
+    .preset-card span { font-size: 9px; color: rgba(255,255,255,0.4); text-align: center; }
+    .preset-card strong { font-size: 11px; color: rgba(255,255,255,0.8); }
+
+    .logo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .logo-card {
+      background: rgba(255,255,255,0.05); border: 1.5px solid transparent;
+      border-radius: 10px; padding: 10px 8px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      transition: border-color .15s, background .15s;
+      min-height: 62px; justify-content: center;
+    }
+    .logo-card:hover { background: rgba(255,255,255,0.09); }
+    .logo-card.active { border-color: var(--red); background: rgba(243,104,76,0.09); }
+    .logo-card img { width: 100%; max-height: 28px; object-fit: contain; display: block; }
+    .logo-card img.invert { filter: brightness(0) invert(1); }
+    .logo-card span { font-size: 9px; color: rgba(255,255,255,0.35); text-align: center; white-space: nowrap; }
+
+    /* Pill toggles (placement + shape) */
+    .toggle-row { display: flex; gap: 6px; }
+    .toggle-btn {
+      flex: 1; padding: 8px 4px; border-radius: 8px; border: 1.5px solid transparent;
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.55);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .toggle-btn:hover { background: rgba(255,255,255,0.09); color: var(--white); }
+    .toggle-btn.active { border-color: var(--red); background: rgba(243,104,76,0.09); color: var(--white); }
+    .toggle-btn svg { flex-shrink: 0; }
+
+    /* Zoom */
+    .zoom-row { display: flex; align-items: center; gap: 10px; width: 100%; }
+    .z-icon { font-size: 16px; color: rgba(255,255,255,0.3); user-select: none; }
     input[type=range] {
       -webkit-appearance: none; flex: 1; height: 4px;
       border-radius: 2px; background: rgba(255,255,255,0.1); outline: none; cursor: pointer;
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
-      background: var(--red); box-shadow: 0 2px 6px rgba(0,0,0,0.35); cursor: pointer;
-    }
-    input[type=range]::-moz-range-thumb {
-      width: 18px; height: 18px; border: none; border-radius: 50%;
-      background: var(--red); cursor: pointer;
+      background: var(--red); box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer;
     }
 
     /* Buttons */
-    .action-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+    .action-row { display: flex; gap: 10px; justify-content: center; margin-top: 6px; }
     .btn {
       display: inline-flex; align-items: center; gap: 7px;
-      padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      padding: 12px 22px; border-radius: 8px; font-size: 14px; font-weight: 600;
       cursor: pointer; border: none; transition: opacity .15s, transform .1s;
     }
     .btn:active { transform: scale(.97); }
@@ -119,17 +156,17 @@
     .btn-primary:hover { opacity: .88; }
     .btn-secondary {
       background: rgba(255,255,255,0.07); color: var(--white);
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.11);
     }
     .btn-secondary:hover { background: rgba(255,255,255,0.11); }
 
-    footer { margin-top: auto; padding: 24px; font-size: 12px; color: rgba(255,255,255,0.15); }
+    footer { margin-top: auto; padding: 20px; font-size: 11px; color: rgba(255,255,255,0.13); }
   </style>
 </head>
 <body>
 
 <header>
-  <svg width="88" height="27" viewBox="0 0 109 34" fill="none">
+  <svg width="84" height="26" viewBox="0 0 109 34" fill="none">
     <path fill="white" fill-rule="evenodd" d="M26.27 0C23.91 0 21.99 1.99 21.99 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S28.63 0 26.27 0zm78.44 0c-2.36 0-4.28 1.99-4.28 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S107.07 0 104.71 0zm-78.44 1.16c1.76 0 3.17 1.46 3.17 3.27s-1.41 3.27-3.17 3.27-3.17-1.46-3.17-3.27 1.41-3.27 3.17-3.27zM0 10.02v23.31h12.52c1.42 0 2.67-.15 3.75-.46 1.1-.33 2.01-.79 2.74-1.37.73-.58 1.28-1.25 1.64-2.03.37-.8.55-1.66.55-2.59v-.07c0-1.6-.43-2.83-1.29-3.7-.86-.86-2.02-1.52-3.48-1.96 1.23-.44 2.2-1.08 2.93-1.93.73-.87 1.1-2 1.1-3.4v-.06c0-.8-.13-1.5-.39-2.1-.26-.6-.6-1.11-1.01-1.53-.67-.69-1.52-1.2-2.55-1.56-1.01-.36-2.3-.54-3.87-.54H0zm22.5 23.31h7.55V10.02H22.5v23.31zm8.98-23.31v6.59h6.65v16.72h7.56V16.61h6.64v-6.59H31.48zm42.72 0l9.17 23.48h7.22l9.17-23.48h-8.32l-4.39 13.08-4.39-13.08h-8.46zm27.74 23.31h7.55V10.02h-7.55v23.31zM7.36 15.92h3.27c1.61 0 2.42.53 2.42 1.59v.06c0 1.07-.8 1.61-2.39 1.61H7.36v-3.26zm56.91-6.41c-1.74 0-3.36.32-4.87.96-1.5.62-2.82 1.5-3.94 2.61-1.09 1.09-1.96 2.37-2.6 3.86-.63 1.46-.94 3.04-.94 4.73v.06c0 1.69.31 3.28.94 4.76.62 1.47 1.48 2.75 2.58 3.84 1.12 1.09 2.42 1.94 3.9 2.56 1.51.62 3.14.94 4.88.94 1.74 0 3.37-.32 4.88-.94 1.5-.64 2.8-1.51 3.9-2.6 1.12-1.11 1.98-2.39 2.6-3.86.64-1.49.97-3.07.97-4.76v-.07c0-1.69-.31-3.26-.94-4.72-.62-1.49-1.5-2.78-2.62-3.87-1.1-1.09-2.4-1.94-3.9-2.56-1.49-.62-3.11-.94-4.85-.94zm-.06 6.9c.73 0 1.39.14 1.97.43.58.29 1.07.67 1.47 1.16.41.49.72 1.06.93 1.71.24.62.36 1.27.36 1.97v.06c0 .69-.11 1.34-.32 1.96-.22.62-.52 1.17-.93 1.66-.41.47-.91.84-1.49 1.13-.58.29-1.22.43-1.93.43-.73 0-1.39-.14-1.97-.43-.58-.29-1.08-.67-1.49-1.16-.41-.49-.72-1.07-.94-1.69-.22-.64-.33-1.3-.33-1.97v-.07c0-.69.11-1.34.33-1.96.22-.62.53-1.17.94-1.66.41-.49.91-.84 1.49-1.13.58-.29 1.22-.43 1.91-.43zM7.36 23.97h3.81c.82 0 1.44.16 1.85.47.41.31.61.72.61 1.23v.06c0 .51-.21.93-.64 1.24-.41.31-1.02.47-1.84.47H7.36v-3.47z"/>
   </svg>
   <span class="tagline">Avatar Generator</span>
@@ -137,14 +174,14 @@
 
 <main>
   <h1>Your <span>Bitovi</span> Avatar</h1>
-  <p class="subtitle">Upload, drag to position, zoom to fit.</p>
+  <p class="subtitle">Upload, position, customize, download.</p>
 
   <label class="upload-zone" id="dropzone">
     <input type="file" id="fileInput" accept="image/*" />
-    <div class="upload-icon">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <div class="up-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M12 16V8M12 8L9 11M12 8L15 11" stroke="#F3684C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M3 16.5V18.75C3 19.9926 4.00736 21 5.25 21H18.75C19.9926 21 21 19.9926 21 18.75V16.5" stroke="#F3684C" stroke-width="2" stroke-linecap="round"/>
+        <path d="M3 16.5V18.75C3 19.99 4.01 21 5.25 21H18.75C19.99 21 21 19.99 21 18.75V16.5" stroke="#F3684C" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </div>
     <p><strong>Click to upload</strong> or drag & drop</p>
@@ -154,16 +191,135 @@
   <div class="editor" id="editor">
     <canvas id="preview" width="600" height="600"></canvas>
     <p class="hint-drag">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M3 12h18M12 3v18" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/></svg>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M3 12h18M12 3v18" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-linecap="round"/></svg>
       Drag to reposition
     </p>
 
-    <div class="controls">
-      <div class="ctrl-row">
-        <span class="zoom-icon">⊖</span>
-        <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1" />
-        <span class="zoom-icon">⊕</span>
+    <!-- Presets -->
+    <div class="section">
+      <span class="section-label">Presets</span>
+      <div class="preset-grid" id="presetGrid">
+        <div class="preset-card active" data-preset="classic">
+          <div class="preset-thumb">
+            <div class="preset-diag" style="height:100%;clip-path:polygon(0 65%,100% 72%,100% 100%,0 100%)"></div>
+            <div style="position:absolute;bottom:20%;left:8px;font-size:5px;color:white;font-weight:700;letter-spacing:.03em">bitovi</div>
+            <div style="position:absolute;left:0;right:0;height:1.5px;background:#F3684C;bottom:calc(35% - 1px);transform:rotate(1.3deg)"></div>
+          </div>
+          <strong>Classic</strong>
+          <span>Circle · Wordmark</span>
+        </div>
+        <div class="preset-card" data-preset="bold">
+          <div class="preset-thumb">
+            <div class="preset-diag" style="height:100%;clip-path:polygon(0 50%,100% 62%,100% 100%,0 100%)"></div>
+            <div style="position:absolute;bottom:22%;left:50%;transform:translateX(-50%);font-size:5px;color:#F3684C;font-weight:700;white-space:nowrap">bitovi</div>
+            <div style="position:absolute;left:0;right:0;height:1.5px;background:#F3684C;bottom:calc(50% - 1px);transform:rotate(2.2deg)"></div>
+          </div>
+          <strong>Bold</strong>
+          <span>Circle · Orange</span>
+        </div>
+        <div class="preset-card" data-preset="icon">
+          <div class="preset-thumb">
+            <div class="preset-diag" style="height:100%;clip-path:polygon(0 60%,100% 68%,100% 100%,0 100%)"></div>
+            <div style="position:absolute;bottom:14%;left:50%;transform:translateX(-50%);width:12px;height:12px;opacity:.85">
+              <svg viewBox="0 0 256 256" fill="white"><path d="M242.586 105.07C239.342 101.907 236.225 100.116 233.481 98.5465C231.4 97.3605 229.609 96.3256 227.865 94.7791C225.842 92.9651 223.376 88.0698 222.272 85.1628C216.097 67.2209 207.574 50.8953 197.19 37.3605C178.574 13.1047 155.993 0.186046 131.888 0H131.388C105.411 0 80.6322 15.314 61.5741 43.1628C54.9811 52.7907 48.8881 66.2209 44.4229 76.0232C43.3881 78.3139 42.4578 80.3372 41.6788 82C40.5625 84.3488 39.3881 86.4186 38.0741 88.3139L30.3067 18.5814C34.0392 16.9884 36.5392 13.6512 36.3299 9.93023C36.0509 4.95349 31.0392 1.19767 25.1322 1.52326C19.2253 1.84884 14.6671 6.15116 14.9462 11.1279C15.1671 14.9419 18.1555 18.0349 22.202 19.1279L25.202 99.8256L24.7602 100.093C21.1555 102.279 17.4229 104.535 14.7834 107.081C11.2253 110.512 8.60899 115.674 7.22527 122C3.92295 137.151 5.95783 161.36 18.3997 167.384C27.7602 171.919 35.0043 179.895 39.3416 190.453C54.8532 231.291 89.4346 255.791 131.865 256H132.411C161.516 256 187.562 244.279 205.783 222.953C218.911 207.593 227.435 188 230.865 166.186C231.702 162.512 235.446 158.651 239.097 154.919C243.19 150.721 247.423 146.384 249.097 140.884C250.993 134.674 249.923 112.244 242.586 105.07Z"/></svg>
+            </div>
+            <div style="position:absolute;left:0;right:0;height:1.5px;background:#F3684C;bottom:calc(40% - 1px);transform:rotate(1.5deg)"></div>
+          </div>
+          <strong>Icon</strong>
+          <span>Circle · Eggbert</span>
+        </div>
+        <div class="preset-card" data-preset="square">
+          <div class="preset-thumb square">
+            <div class="preset-diag" style="height:100%;clip-path:polygon(0 62%,100% 72%,100% 100%,0 100%);border-radius:0"></div>
+            <div style="position:absolute;bottom:10%;right:6px;font-size:5px;color:white;font-weight:700;letter-spacing:.03em">bitovi</div>
+            <div style="position:absolute;left:0;right:0;height:1.5px;background:#F3684C;bottom:calc(38% - 1px);transform:rotate(1.8deg)"></div>
+          </div>
+          <strong>Square</strong>
+          <span>Square · Wordmark</span>
+        </div>
       </div>
+    </div>
+
+    <!-- Logo picker -->
+    <div class="section">
+      <span class="section-label">Logo</span>
+      <div class="logo-grid" id="logoGrid">
+        <div class="logo-card active" data-logo="wordmark_white">
+          <img src="logos/wordmark.svg" class="invert" alt="Wordmark white" />
+          <span>Wordmark</span>
+        </div>
+        <div class="logo-card" data-logo="wordmark_orange">
+          <img src="logos/wordmark-orange.svg" alt="Wordmark orange" />
+          <span>Wordmark orange</span>
+        </div>
+        <div class="logo-card" data-logo="eggbert_white">
+          <img src="logos/eggbert-light.svg" class="invert" alt="Eggbert" />
+          <span>Eggbert</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Placement -->
+    <div class="section">
+      <span class="section-label">Logo placement</span>
+      <div class="toggle-row" id="placementRow">
+        <button class="toggle-btn active" data-placement="left">
+          <svg width="14" height="14" viewBox="0 0 16 16"><rect x="1" y="6" width="8" height="4" rx="1" fill="currentColor"/></svg>
+          Left
+        </button>
+        <button class="toggle-btn" data-placement="center">
+          <svg width="14" height="14" viewBox="0 0 16 16"><rect x="4" y="6" width="8" height="4" rx="1" fill="currentColor"/></svg>
+          Center
+        </button>
+        <button class="toggle-btn" data-placement="right">
+          <svg width="14" height="14" viewBox="0 0 16 16"><rect x="7" y="6" width="8" height="4" rx="1" fill="currentColor"/></svg>
+          Right
+        </button>
+      </div>
+    </div>
+
+    <!-- Export shape -->
+    <div class="section">
+      <span class="section-label">Shape</span>
+      <div class="toggle-row" id="shapeRow">
+        <button class="toggle-btn active" data-shape="circle">
+          <svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Circle
+        </button>
+        <button class="toggle-btn" data-shape="oval">
+          <svg width="14" height="14" viewBox="0 0 16 16"><ellipse cx="8" cy="8" rx="7" ry="5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Oval
+        </button>
+        <button class="toggle-btn" data-shape="square">
+          <svg width="14" height="14" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2.5" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+          Square
+        </button>
+      </div>
+    </div>
+
+    <!-- Diagonal controls -->
+    <div class="section">
+      <span class="section-label">Branding coverage</span>
+      <div class="zoom-row">
+        <span class="z-icon" style="font-size:12px">Less</span>
+        <input type="range" id="diagSlider" min="10" max="45" value="26" step="1" />
+        <span class="z-icon" style="font-size:12px">More</span>
+      </div>
+    </div>
+    <div class="section">
+      <span class="section-label">Diagonal angle</span>
+      <div class="zoom-row">
+        <span class="z-icon" style="font-size:12px">Flat</span>
+        <input type="range" id="tiltSlider" min="0" max="20" value="8" step="1" />
+        <span class="z-icon" style="font-size:12px">Steep</span>
+      </div>
+    </div>
+
+    <!-- Zoom -->
+    <div class="zoom-row">
+      <span class="z-icon">⊖</span>
+      <input type="range" id="zoomSlider" min="100" max="300" value="100" step="1" />
+      <span class="z-icon">⊕</span>
     </div>
 
     <div class="action-row">
@@ -182,27 +338,17 @@
 <footer>Bitovi · Internal tool · Brand guidelines v1.1</footer>
 
 <script>
-const SIZE   = 600;
-const R      = SIZE / 2;   // circle radius
-const CX     = R, CY = R;  // circle center
-const RED    = '#F3684C';
-const GREEN  = '#10312F';
-const WHITE  = '#FFFFFF';
-
-// Diagonal endpoints — computed to land exactly on the circle boundary
-// Left point: at y = 72% of SIZE, x solved from circle equation
-const DIAG_LY = SIZE * 0.72;
-const DIAG_RY = SIZE * 0.80;
-const DIAG_LX = CX - Math.sqrt(Math.max(0, R * R - (DIAG_LY - CY) ** 2));
-const DIAG_RX = CX + Math.sqrt(Math.max(0, R * R - (DIAG_RY - CY) ** 2));
-
-const LOGO_W = 109, LOGO_H = 34;
-const LOGO_PATH = new Path2D('M26.27 0C23.91 0 21.99 1.99 21.99 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S28.63 0 26.27 0zm78.44 0c-2.36 0-4.28 1.99-4.28 4.43s1.92 4.42 4.28 4.42 4.28-1.98 4.28-4.42S107.07 0 104.71 0zm-78.44 1.16c1.76 0 3.17 1.46 3.17 3.27s-1.41 3.27-3.17 3.27-3.17-1.46-3.17-3.27 1.41-3.27 3.17-3.27zM0 10.02v23.31h12.52c1.42 0 2.67-.15 3.75-.46 1.1-.33 2.01-.79 2.74-1.37.73-.58 1.28-1.25 1.64-2.03.37-.8.55-1.66.55-2.59v-.07c0-1.6-.43-2.83-1.29-3.7-.86-.86-2.02-1.52-3.48-1.96 1.23-.44 2.2-1.08 2.93-1.93.73-.87 1.1-2 1.1-3.4v-.06c0-.8-.13-1.5-.39-2.1-.26-.6-.6-1.11-1.01-1.53-.67-.69-1.52-1.2-2.55-1.56-1.01-.36-2.3-.54-3.87-.54H0zm22.5 23.31h7.55V10.02H22.5v23.31zm8.98-23.31v6.59h6.65v16.72h7.56V16.61h6.64v-6.59H31.48zm42.72 0l9.17 23.48h7.22l9.17-23.48h-8.32l-4.39 13.08-4.39-13.08h-8.46zm27.74 23.31h7.55V10.02h-7.55v23.31zM7.36 15.92h3.27c1.61 0 2.42.53 2.42 1.59v.06c0 1.07-.8 1.61-2.39 1.61H7.36v-3.26zm56.91-6.41c-1.74 0-3.36.32-4.87.96-1.5.62-2.82 1.5-3.94 2.61-1.09 1.09-1.96 2.37-2.6 3.86-.63 1.46-.94 3.04-.94 4.73v.06c0 1.69.31 3.28.94 4.76.62 1.47 1.48 2.75 2.58 3.84 1.12 1.09 2.42 1.94 3.9 2.56 1.51.62 3.14.94 4.88.94 1.74 0 3.37-.32 4.88-.94 1.5-.64 2.8-1.51 3.9-2.6 1.12-1.11 1.98-2.39 2.6-3.86.64-1.49.97-3.07.97-4.76v-.07c0-1.69-.31-3.26-.94-4.72-.62-1.49-1.5-2.78-2.62-3.87-1.1-1.09-2.4-1.94-3.9-2.56-1.49-.62-3.11-.94-4.85-.94zm-.06 6.9c.73 0 1.39.14 1.97.43.58.29 1.07.67 1.47 1.16.41.49.72 1.06.93 1.71.24.62.36 1.27.36 1.97v.06c0 .69-.11 1.34-.32 1.96-.22.62-.52 1.17-.93 1.66-.41.47-.91.84-1.49 1.13-.58.29-1.22.43-1.93.43-.73 0-1.39-.14-1.97-.43-.58-.29-1.08-.67-1.49-1.16-.41-.49-.72-1.07-.94-1.69-.22-.64-.33-1.3-.33-1.97v-.07c0-.69.11-1.34.33-1.96.22-.62.53-1.17.94-1.66.41-.49.91-.84 1.49-1.13.58-.29 1.22-.43 1.91-.43zM7.36 23.97h3.81c.82 0 1.44.16 1.85.47.41.31.61.72.61 1.23v.06c0 .51-.21.93-.64 1.24-.41.31-1.02.47-1.84.47H7.36v-3.47z');
+const SIZE = 600, CX = 300, CY = 300, R = 300;
+const RED = '#F3684C', GREEN = '#10312F';
 
 // State
-let img = null, zoom = 1, panX = 0, panY = 0;
-let drag = false, dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
+let userImg = null, zoom = 1, panX = 0, panY = 0;
+let logoKey = 'wordmark_white', placement = 'left', exportShape = 'circle';
+let diagCoverage = 0.26, diagTilt = 0.08;
+let drag = false, dragSX = 0, dragSY = 0, panSX = 0, panSY = 0;
+const logoImgs = {};
 
+// DOM
 const canvas      = document.getElementById('preview');
 const ctx         = canvas.getContext('2d');
 const dropzone    = document.getElementById('dropzone');
@@ -212,7 +358,63 @@ const zoomSlider  = document.getElementById('zoomSlider');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetBtn    = document.getElementById('resetBtn');
 
-// ── File load ──────────────────────────────────────────────────────────────
+// ── Logo loading ───────────────────────────────────────────────────────────
+const LOGO_DEFS = {
+  wordmark_white:  { file: 'logos/wordmark.svg',        replace: { '#00464A': 'white' } },
+  wordmark_orange: { file: 'logos/wordmark-orange.svg', replace: {} },
+  eggbert_white:   { file: 'logos/eggbert-light.svg',   replace: { '#00464A': 'white' } },
+};
+
+async function loadLogoImg(key) {
+  const { file, replace } = LOGO_DEFS[key];
+  const res = await fetch(file);
+  let svg = await res.text();
+  Object.entries(replace).forEach(([from, to]) => { svg = svg.split(from).join(to); });
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
+  const url  = URL.createObjectURL(blob);
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); logoImgs[key] = img; resolve(img); };
+    img.src = url;
+  });
+}
+
+async function initLogos() {
+  await Promise.all(Object.keys(LOGO_DEFS).map(key => loadLogoImg(key)));
+  render();
+}
+
+initLogos();
+
+// ── Presets ────────────────────────────────────────────────────────────────
+const PRESETS = {
+  classic: { logoKey: 'wordmark_white', placement: 'left',   exportShape: 'circle', diagCoverage: 0.26, diagTilt: 0.08 },
+  bold:    { logoKey: 'wordmark_orange', placement: 'center', exportShape: 'circle', diagCoverage: 0.38, diagTilt: 0.12 },
+  icon:    { logoKey: 'eggbert_white',  placement: 'center', exportShape: 'circle', diagCoverage: 0.30, diagTilt: 0.08 },
+  square:  { logoKey: 'wordmark_white', placement: 'right',  exportShape: 'square', diagCoverage: 0.28, diagTilt: 0.10 },
+};
+
+function applyPreset(name) {
+  const p = PRESETS[name];
+  if (!p) return;
+  logoKey = p.logoKey; placement = p.placement; exportShape = p.exportShape;
+  diagCoverage = p.diagCoverage; diagTilt = p.diagTilt;
+  // Sync UI controls
+  document.querySelectorAll('[data-logo]').forEach(c => c.classList.toggle('active', c.dataset.logo === logoKey));
+  document.querySelectorAll('[data-placement]').forEach(b => b.classList.toggle('active', b.dataset.placement === placement));
+  document.querySelectorAll('[data-shape]').forEach(b => b.classList.toggle('active', b.dataset.shape === exportShape));
+  document.getElementById('diagSlider').value = Math.round(diagCoverage * 100);
+  document.getElementById('tiltSlider').value = Math.round(diagTilt * 100);
+  document.querySelectorAll('[data-preset]').forEach(c => c.classList.toggle('active', c.dataset.preset === name));
+  render();
+}
+
+document.getElementById('presetGrid').addEventListener('click', e => {
+  const card = e.target.closest('[data-preset]');
+  if (card) applyPreset(card.dataset.preset);
+});
+
+// ── File handling ──────────────────────────────────────────────────────────
 fileInput.addEventListener('change', e => loadFile(e.target.files[0]));
 dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
 dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
@@ -222,101 +424,214 @@ function loadFile(file) {
   if (!file?.type.startsWith('image/')) return;
   const reader = new FileReader();
   reader.onload = ev => {
-    const i = new Image();
-    i.onload = () => { img = i; zoom = 1; panX = 0; panY = 0; zoomSlider.value = 100; dropzone.style.display = 'none'; editor.classList.add('visible'); render(); };
-    i.src = ev.target.result;
+    const img = new Image();
+    img.onload = () => { userImg = img; zoom = 1; panX = 0; panY = 0; zoomSlider.value = 100; dropzone.style.display = 'none'; editor.classList.add('visible'); render(); };
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-resetBtn.addEventListener('click', () => { img = null; fileInput.value = ''; editor.classList.remove('visible'); dropzone.style.display = ''; });
+resetBtn.addEventListener('click', () => {
+  userImg = null; fileInput.value = '';
+  editor.classList.remove('visible'); dropzone.style.display = '';
+});
+
+// ── Option pickers ─────────────────────────────────────────────────────────
+function clearPreset() {
+  document.querySelectorAll('[data-preset]').forEach(c => c.classList.remove('active'));
+}
+
+document.getElementById('logoGrid').addEventListener('click', e => {
+  const card = e.target.closest('[data-logo]');
+  if (!card) return;
+  logoKey = card.dataset.logo;
+  document.querySelectorAll('[data-logo]').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  clearPreset(); render();
+});
+
+document.getElementById('placementRow').addEventListener('click', e => {
+  const btn = e.target.closest('[data-placement]');
+  if (!btn) return;
+  placement = btn.dataset.placement;
+  document.querySelectorAll('[data-placement]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clearPreset(); render();
+});
+
+document.getElementById('shapeRow').addEventListener('click', e => {
+  const btn = e.target.closest('[data-shape]');
+  if (!btn) return;
+  exportShape = btn.dataset.shape;
+  document.querySelectorAll('[data-shape]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  clearPreset(); render();
+});
+
+// ── Branding coverage ──────────────────────────────────────────────────────
+document.getElementById('diagSlider').addEventListener('input', e => {
+  diagCoverage = e.target.value / 100;
+  render();
+});
+document.getElementById('tiltSlider').addEventListener('input', e => {
+  diagTilt = e.target.value / 100;
+  render();
+});
 
 // ── Zoom ───────────────────────────────────────────────────────────────────
 zoomSlider.addEventListener('input', () => { zoom = zoomSlider.value / 100; clampPan(); render(); });
 
-// ── Drag to pan (mouse) ────────────────────────────────────────────────────
-canvas.addEventListener('mousedown', e => { if (!img) return; drag = true; canvas.classList.add('dragging'); dragStartX = e.clientX; dragStartY = e.clientY; panStartX = panX; panStartY = panY; });
-window.addEventListener('mousemove', e => { if (!drag) return; const scale = SIZE / 360; panX = panStartX + (e.clientX - dragStartX) * scale; panY = panStartY + (e.clientY - dragStartY) * scale; clampPan(); render(); });
+// ── Drag (mouse) ───────────────────────────────────────────────────────────
+canvas.addEventListener('mousedown', e => {
+  if (!userImg) return;
+  drag = true; canvas.classList.add('dragging');
+  dragSX = e.clientX; dragSY = e.clientY; panSX = panX; panSY = panY;
+});
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  const sc = SIZE / 360;
+  panX = panSX + (e.clientX - dragSX) * sc;
+  panY = panSY + (e.clientY - dragSY) * sc;
+  clampPan(); render();
+});
 window.addEventListener('mouseup', () => { drag = false; canvas.classList.remove('dragging'); });
 
-// ── Drag to pan (touch) ────────────────────────────────────────────────────
-canvas.addEventListener('touchstart', e => { if (!img) return; e.preventDefault(); drag = true; dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY; panStartX = panX; panStartY = panY; }, { passive: false });
-window.addEventListener('touchmove', e => { if (!drag) return; const scale = SIZE / 360; panX = panStartX + (e.touches[0].clientX - dragStartX) * scale; panY = panStartY + (e.touches[0].clientY - dragStartY) * scale; clampPan(); render(); }, { passive: true });
+// ── Drag (touch) ───────────────────────────────────────────────────────────
+canvas.addEventListener('touchstart', e => {
+  if (!userImg) return;
+  e.preventDefault(); drag = true;
+  dragSX = e.touches[0].clientX; dragSY = e.touches[0].clientY; panSX = panX; panSY = panY;
+}, { passive: false });
+window.addEventListener('touchmove', e => {
+  if (!drag) return;
+  const sc = SIZE / 360;
+  panX = panSX + (e.touches[0].clientX - dragSX) * sc;
+  panY = panSY + (e.touches[0].clientY - dragSY) * sc;
+  clampPan(); render();
+}, { passive: true });
 window.addEventListener('touchend', () => { drag = false; });
 
 function clampPan() {
-  if (!img) return;
-  const aspect = img.naturalWidth / img.naturalHeight;
+  if (!userImg) return;
+  const asp = userImg.naturalWidth / userImg.naturalHeight;
   let dw, dh;
-  if (aspect >= 1) { dh = SIZE * zoom; dw = dh * aspect; }
-  else             { dw = SIZE * zoom; dh = dw / aspect; }
-  const maxPanX = Math.max(0, (dw - SIZE) / 2);
-  const maxPanY = Math.max(0, (dh - SIZE) / 2);
-  panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
-  panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+  if (asp >= 1) { dh = SIZE * zoom; dw = dh * asp; }
+  else          { dw = SIZE * zoom; dh = dw / asp; }
+  const mx = Math.max(0, (dw - SIZE) / 2);
+  const my = Math.max(0, (dh - SIZE) / 2);
+  panX = Math.max(-mx, Math.min(mx, panX));
+  panY = Math.max(-my, Math.min(my, panY));
+}
+
+// ── Shape helpers ──────────────────────────────────────────────────────────
+// Oval: landscape ellipse (wider than tall) — natural for profile banners
+// rx = 300 (full width), ry = 240 (slightly squashed)
+const OVL_RX = 300, OVL_RY = 240;
+
+function applyShapeClip(ctx) {
+  ctx.beginPath();
+  if (exportShape === 'circle') {
+    ctx.arc(CX, CY, R, 0, Math.PI * 2);
+  } else if (exportShape === 'oval') {
+    ctx.ellipse(CX, CY, OVL_RX, OVL_RY, 0, 0, Math.PI * 2);
+  } else {
+    roundedRect(ctx, 0, 0, SIZE, SIZE, 52);
+  }
+  ctx.clip();
+}
+
+// Diagonal lower Y boundary on left and right edges for each shape
+function diagPoints() {
+  const tilt = SIZE * diagTilt;
+  const LY = SIZE * (1 - diagCoverage);
+  const RY = Math.min(SIZE, LY + tilt);
+  if (exportShape === 'circle') {
+    const lx = CX - Math.sqrt(Math.max(0, R * R - (LY - CY) ** 2));
+    const rx = CX + Math.sqrt(Math.max(0, R * R - (RY - CY) ** 2));
+    return { lx, ly: LY, rx, ry: RY };
+  } else if (exportShape === 'oval') {
+    const lx = CX - OVL_RX * Math.sqrt(Math.max(0, 1 - ((LY - CY) / OVL_RY) ** 2));
+    const rx = CX + OVL_RX * Math.sqrt(Math.max(0, 1 - ((RY - CY) / OVL_RY) ** 2));
+    return { lx, ly: LY, rx, ry: RY };
+  } else {
+    return { lx: 0, ly: LY, rx: SIZE, ry: RY };
+  }
+}
+
+// ── Logo positioning ───────────────────────────────────────────────────────
+function logoRect(logoImg, diagLy, diagRy) {
+  const isIcon = logoKey.startsWith('eggbert');
+  // Target height in the diagonal zone
+  const tH = isIcon ? 46 : 28;
+  const tW = logoImg.naturalWidth * (tH / logoImg.naturalHeight);
+
+  // Vertical center of the green zone (below diagonal line)
+  const zoneMidY = diagLy + (SIZE - diagLy) * 0.48;
+  const ly = zoneMidY - tH / 2;
+
+  // Horizontal safe margin — how far from center can we go at this Y
+  let safeHalf;
+  if (exportShape === 'circle') {
+    const dy = zoneMidY - CY;
+    safeHalf = Math.sqrt(Math.max(0, R * R - dy * dy)) - 24;
+  } else if (exportShape === 'oval') {
+    const dy = zoneMidY - CY;
+    safeHalf = OVL_RX * Math.sqrt(Math.max(0, 1 - (dy / OVL_RY) ** 2)) - 24;
+  } else {
+    safeHalf = SIZE / 2 - 24;
+  }
+
+  let lx;
+  if (placement === 'center') lx = CX - tW / 2;
+  else if (placement === 'left') lx = CX - safeHalf;
+  else lx = CX + safeHalf - tW;
+
+  return { lx, ly, tW, tH };
 }
 
 // ── Render ─────────────────────────────────────────────────────────────────
 function render() {
-  if (!img) return;
   ctx.clearRect(0, 0, SIZE, SIZE);
+  if (!userImg) return;
 
-  // 1. Clip everything to a perfect circle (transparent outside = safe on any platform)
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(CX, CY, R, 0, Math.PI * 2);
-  ctx.clip();
+  applyShapeClip(ctx);
 
-  // 2. Photo (cover + zoom + pan)
-  const aspect = img.naturalWidth / img.naturalHeight;
+  // 1. Photo
+  const asp = userImg.naturalWidth / userImg.naturalHeight;
   let dw, dh;
-  if (aspect >= 1) { dh = SIZE * zoom; dw = dh * aspect; }
-  else             { dw = SIZE * zoom; dh = dw / aspect; }
-  const dx = (SIZE - dw) / 2 + panX;
-  const dy = (SIZE - dh) / 2 + panY;
-  ctx.drawImage(img, dx, dy, dw, dh);
+  if (asp >= 1) { dh = SIZE * zoom; dw = dh * asp; }
+  else          { dw = SIZE * zoom; dh = dw / asp; }
+  ctx.drawImage(userImg, (SIZE - dw) / 2 + panX, (SIZE - dh) / 2 + panY, dw, dh);
 
-  // 3. Diagonal overlay with fade — polygon clipped to circle
-  const fadeH = 100;
-  const fadeTop = Math.min(DIAG_LY, DIAG_RY) - fadeH * 0.4;
-  const fadeBot = Math.max(DIAG_LY, DIAG_RY) + fadeH;
+  // 2. Diagonal overlay with fade
+  const { lx, ly, rx, ry } = diagPoints();
+  const fadeTop = Math.min(ly, ry) - 60;
+  const fadeBot = Math.max(ly, ry) + 90;
   const grad = ctx.createLinearGradient(0, fadeTop, 0, fadeBot);
-  grad.addColorStop(0,    'rgba(16,49,47,0)');
-  grad.addColorStop(0.4,  'rgba(16,49,47,0.5)');
-  grad.addColorStop(1,    'rgba(16,49,47,0.96)');
+  grad.addColorStop(0,   'rgba(16,49,47,0)');
+  grad.addColorStop(0.4, 'rgba(16,49,47,0.52)');
+  grad.addColorStop(1,   'rgba(16,49,47,0.96)');
 
   ctx.beginPath();
-  ctx.moveTo(DIAG_LX, DIAG_LY);
-  ctx.lineTo(DIAG_RX, DIAG_RY);
-  // Arc along the bottom of the circle to close the shape
-  const angleR = Math.atan2(DIAG_RY - CY, DIAG_RX - CX);
-  const angleL = Math.atan2(DIAG_LY - CY, DIAG_LX - CX);
-  ctx.arc(CX, CY, R, angleR, angleL, false); // clockwise bottom arc
+  ctx.moveTo(lx, ly);
+  ctx.lineTo(rx, ry);
+  ctx.lineTo(SIZE, SIZE); ctx.lineTo(0, SIZE);
   ctx.closePath();
   ctx.fillStyle = grad;
   ctx.fill();
 
-  // 4. Red diagonal accent line
+  // 3. Red accent line
   ctx.beginPath();
-  ctx.moveTo(DIAG_LX, DIAG_LY);
-  ctx.lineTo(DIAG_RX, DIAG_RY);
-  ctx.strokeStyle = RED;
-  ctx.lineWidth = 4;
-  ctx.stroke();
+  ctx.moveTo(lx, ly); ctx.lineTo(rx, ry);
+  ctx.strokeStyle = RED; ctx.lineWidth = 4; ctx.stroke();
 
-  // 5. Bitovi logo — centered horizontally in the green zone (safe inside circle)
-  const logoCenterY = DIAG_LY + (SIZE - DIAG_LY) * 0.52;
-  const logoTargetH = 26;
-  const logoTargetW = LOGO_W * (logoTargetH / LOGO_H);
-  const logoX = CX - logoTargetW / 2;
-  const logoY = logoCenterY - logoTargetH / 2;
-
-  ctx.save();
-  ctx.translate(logoX, logoY);
-  ctx.scale(logoTargetW / LOGO_W, logoTargetH / LOGO_H);
-  ctx.fillStyle = WHITE;
-  ctx.fill(LOGO_PATH);
-  ctx.restore();
+  // 4. Logo
+  const logoImg = logoImgs[logoKey];
+  if (logoImg) {
+    const { lx: lx2, ly: ly2, tW, tH } = logoRect(logoImg, ly, ry);
+    ctx.drawImage(logoImg, lx2, ly2, tW, tH);
+  }
 
   ctx.restore();
 }
@@ -324,12 +639,12 @@ function render() {
 // ── Download ───────────────────────────────────────────────────────────────
 downloadBtn.addEventListener('click', () => {
   const a = document.createElement('a');
-  a.download = 'bitovi-avatar.png';
+  a.download = `bitovi-avatar-${exportShape}.png`;
   a.href = canvas.toDataURL('image/png');
   a.click();
 });
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+// ── Util ───────────────────────────────────────────────────────────────────
 function roundedRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
